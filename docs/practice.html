@@ -323,8 +323,6 @@ function createTile(word) {
   t.textContent = word;
   t.type        = "button";
   t.draggable   = true;
-  t.dataset.word = word;
-  t.dataset.zone = "bank";
 
   t.addEventListener("click", () => { if (!answered) handleTileClick(t); });
 
@@ -343,11 +341,9 @@ function createTile(word) {
 }
 
 function handleTileClick(tile) {
-  if (tile.dataset.zone === "bank") {
-    tile.dataset.zone = "answer";
+  if (tile.parentElement === wordBank) {
     answerZone.appendChild(tile);
   } else {
-    tile.dataset.zone = "bank";
     wordBank.appendChild(tile);
   }
   updatePlaceholder();
@@ -374,7 +370,6 @@ answerZone.addEventListener("dragover", e => {
   after == null
     ? answerZone.appendChild(dragSrc)
     : answerZone.insertBefore(dragSrc, after);
-  dragSrc.dataset.zone = "answer";
   updatePlaceholder();
 });
 answerZone.addEventListener("dragleave", () => answerZone.classList.remove("drag-over"));
@@ -382,10 +377,9 @@ answerZone.addEventListener("drop",      e => { e.preventDefault(); answerZone.c
 
 wordBank.addEventListener("dragover", e => {
   e.preventDefault();
-  if (dragSrc && dragSrc.dataset.zone !== "bank") {
+  if (dragSrc && dragSrc.parentElement !== wordBank) {
     wordBank.classList.add("drag-over");
     wordBank.appendChild(dragSrc);
-    dragSrc.dataset.zone = "bank";
     updatePlaceholder();
   }
 });
@@ -481,10 +475,7 @@ document.getElementById("btn-check").addEventListener("click", () => {
    ========================================================= */
 document.getElementById("btn-clear").addEventListener("click", () => {
   if (answered) return;
-  answerZone.querySelectorAll(".tile").forEach(t => {
-    t.dataset.zone = "bank";
-    wordBank.appendChild(t);
-  });
+  [...answerZone.querySelectorAll(".tile")].forEach(t => wordBank.appendChild(t));
   updatePlaceholder();
 });
 
