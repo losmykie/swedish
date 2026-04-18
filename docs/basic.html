@@ -80,6 +80,21 @@
   .chip.active{background:var(--sky-tint);border-color:var(--sky);color:var(--text)}
   .chip:focus-visible{outline:2px solid var(--sky);outline-offset:2px}
 
+  /* ====== SELECT DROPDOWNS ====== */
+  .panel-select{
+    display:block;width:100%;max-width:320px;
+    appearance:none;-webkit-appearance:none;
+    background:var(--white) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%236B7280' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E") no-repeat right 12px center;
+    border:1px solid var(--border);border-radius:8px;
+    padding:10px 36px 10px 14px;
+    font-family:inherit;font-size:14px;font-weight:500;color:var(--text);
+    cursor:pointer;margin-bottom:24px;
+    box-shadow:var(--shadow-lifted);
+    transition:border-color .15s ease;
+  }
+  .panel-select:hover{border-color:var(--sky)}
+  .panel-select:focus{outline:2px solid var(--sky);outline-offset:2px;border-color:var(--sky)}
+
   /* ====== VERB TABLE ====== */
   .tbl-wrap{background:var(--white);border:1px solid var(--border);border-radius:12px;overflow:hidden}
   .tbl-head{display:grid;grid-template-columns:1.3fr 1fr 1fr;background:var(--near-white);border-bottom:1px solid var(--border)}
@@ -281,27 +296,35 @@
 
 <!-- ============ FLASHCARDS ============ -->
 <section class="panel" id="panel-cards">
-  <div class="chip-row" id="deck-picker">
-    <button class="chip active" data-deck="all">All</button>
-    <button class="chip" data-deck="verbs-all">All verbs</button>
-    <button class="chip" data-deck="verbs-daily">Daily routine verbs</button>
-    <button class="chip" data-deck="verbs-library">Library verbs</button>
-    <button class="chip" data-deck="verbs-modal">Modal verbs</button>
-    <button class="chip" data-deck="numbers">Numbers</button>
-    <button class="chip" data-deck="ordinals">Ordinals</button>
-    <button class="chip" data-deck="greetings">Greetings &amp; phrases</button>
-    <button class="chip" data-deck="food">Food &amp; dining</button>
-    <button class="chip" data-deck="shopping">Shopping &amp; money</button>
-    <button class="chip" data-deck="transport">Transport &amp; directions</button>
-    <button class="chip" data-deck="home">Home &amp; living</button>
-    <button class="chip" data-deck="time">Time, days &amp; months</button>
-    <button class="chip" data-deck="people">People &amp; family</button>
-    <button class="chip" data-deck="health">Health &amp; emergencies</button>
-    <button class="chip" data-deck="laundry">Tvättstugan</button>
-    <button class="chip" data-deck="library">Library words</button>
-    <button class="chip" data-deck="easter">Easter</button>
-    <button class="chip" data-deck="lappen">Lappen expressions</button>
-  </div>
+  <select id="deck-picker" class="panel-select" aria-label="Choose a flashcard deck">
+    <option value="all">All cards</option>
+    <optgroup label="Verbs">
+      <option value="verbs-all">All verbs</option>
+      <option value="verbs-daily">Daily routine verbs</option>
+      <option value="verbs-library">Library verbs</option>
+      <option value="verbs-modal">Modal verbs</option>
+    </optgroup>
+    <optgroup label="Numbers">
+      <option value="numbers">Numbers</option>
+      <option value="ordinals">Ordinals</option>
+    </optgroup>
+    <optgroup label="Vocabulary">
+      <option value="greetings">Greetings &amp; phrases</option>
+      <option value="food">Food &amp; dining</option>
+      <option value="shopping">Shopping &amp; money</option>
+      <option value="transport">Transport &amp; directions</option>
+      <option value="home">Home &amp; living</option>
+      <option value="time">Time, days &amp; months</option>
+      <option value="people">People &amp; family</option>
+      <option value="health">Health &amp; emergencies</option>
+    </optgroup>
+    <optgroup label="Topics">
+      <option value="laundry">Tvättstugan</option>
+      <option value="library">Library words</option>
+      <option value="easter">Easter</option>
+      <option value="lappen">Lappen expressions</option>
+    </optgroup>
+  </select>
   <div class="card-stage">
     <div class="card" id="card">
       <div class="face front">
@@ -326,9 +349,27 @@
 
 <!-- ============ VOCAB ============ -->
 <section class="panel" id="panel-vocab">
+  <select id="vocab-filter" class="panel-select" aria-label="Filter vocabulary by category">
+    <option value="all">All categories</option>
+    <option value="greetings">Greetings &amp; essential phrases</option>
+    <option value="food">Food &amp; dining</option>
+    <option value="shopping">Shopping &amp; money</option>
+    <option value="transport">Transport &amp; directions</option>
+    <option value="home">Home &amp; living</option>
+    <option value="time">Time, days &amp; months</option>
+    <option value="people">People &amp; family</option>
+    <option value="health">Health &amp; emergencies</option>
+    <option value="laundry">Tvättstugan (laundry room)</option>
+    <option value="daily">Daily routine verbs</option>
+    <option value="library">Library &amp; everyday</option>
+    <option value="easter">Easter in Sweden</option>
+    <option value="lappen">Expressions from "Lappen"</option>
+    <option value="questions">Questions &amp; answers</option>
+    <option value="numbers">Numbers</option>
+  </select>
   <div class="vocab-columns">
 
-    <div class="vocab-section">
+    <div class="vocab-section" data-cat="greetings">
       <div class="vocab-title">Greetings &amp; essential phrases</div>
       <div class="vocab-grid">
         <div class="vocab-item"><span class="sv">hej</span><span class="tr">hi / hello</span></div>
@@ -357,7 +398,7 @@
       </div>
     </div>
 
-    <div class="vocab-section">
+    <div class="vocab-section" data-cat="food">
       <div class="vocab-title">Food &amp; dining</div>
       <div class="vocab-grid">
         <div class="vocab-item"><span class="sv">mat</span><span class="tr">food</span></div>
@@ -389,7 +430,7 @@
       </div>
     </div>
 
-    <div class="vocab-section">
+    <div class="vocab-section" data-cat="shopping">
       <div class="vocab-title">Shopping &amp; money</div>
       <div class="vocab-grid">
         <div class="vocab-item"><span class="sv">affär / butik</span><span class="tr">shop / store</span></div>
@@ -416,7 +457,7 @@
       </div>
     </div>
 
-    <div class="vocab-section">
+    <div class="vocab-section" data-cat="transport">
       <div class="vocab-title">Transport &amp; directions</div>
       <div class="vocab-grid">
         <div class="vocab-item"><span class="sv">buss</span><span class="tr">bus</span></div>
@@ -444,7 +485,7 @@
       </div>
     </div>
 
-    <div class="vocab-section">
+    <div class="vocab-section" data-cat="home">
       <div class="vocab-title">Home &amp; living</div>
       <div class="vocab-grid">
         <div class="vocab-item"><span class="sv">hem</span><span class="tr">home</span></div>
@@ -472,7 +513,7 @@
       </div>
     </div>
 
-    <div class="vocab-section">
+    <div class="vocab-section" data-cat="time">
       <div class="vocab-title">Time, days &amp; months</div>
       <div class="vocab-grid">
         <div class="vocab-item"><span class="sv">idag</span><span class="tr">today</span></div>
@@ -510,7 +551,7 @@
       </div>
     </div>
 
-    <div class="vocab-section">
+    <div class="vocab-section" data-cat="people">
       <div class="vocab-title">People &amp; family</div>
       <div class="vocab-grid">
         <div class="vocab-item"><span class="sv">familj</span><span class="tr">family</span></div>
@@ -536,7 +577,7 @@
       </div>
     </div>
 
-    <div class="vocab-section">
+    <div class="vocab-section" data-cat="health">
       <div class="vocab-title">Health &amp; emergencies</div>
       <div class="vocab-grid">
         <div class="vocab-item"><span class="sv">sjuk</span><span class="tr">sick</span></div>
@@ -563,7 +604,7 @@
       </div>
     </div>
 
-    <div class="vocab-section">
+    <div class="vocab-section" data-cat="laundry">
       <div class="vocab-title">Tvättstugan (laundry room)</div>
       <div class="vocab-grid">
         <div class="vocab-item"><span class="sv">tvätta</span><span class="tr">to wash (laundry)</span></div>
@@ -584,7 +625,7 @@
       </div>
     </div>
 
-    <div class="vocab-section">
+    <div class="vocab-section" data-cat="daily">
       <div class="vocab-title">Daily routine verbs</div>
       <div class="vocab-grid">
         <div class="vocab-item"><span class="sv">vakna</span><span class="tr">to wake up</span></div>
@@ -609,7 +650,7 @@
       </div>
     </div>
 
-    <div class="vocab-section">
+    <div class="vocab-section" data-cat="library">
       <div class="vocab-title">Library &amp; everyday</div>
       <div class="vocab-grid">
         <div class="vocab-item"><span class="sv">vuxna</span><span class="tr">adults</span></div>
@@ -637,7 +678,7 @@
       </div>
     </div>
 
-    <div class="vocab-section">
+    <div class="vocab-section" data-cat="easter">
       <div class="vocab-title">Easter in Sweden</div>
       <div class="vocab-grid">
         <div class="vocab-item"><span class="sv">skärtorsdag</span><span class="tr">Maundy Thursday (Torsdag)</span></div>
@@ -653,7 +694,7 @@
       </div>
     </div>
 
-    <div class="vocab-section">
+    <div class="vocab-section" data-cat="lappen">
       <div class="vocab-title">Expressions from "Lappen"</div>
       <div class="vocab-grid">
         <div class="vocab-item"><span class="sv">sluta</span><span class="tr">to stop / quit</span></div>
@@ -667,7 +708,7 @@
       </div>
     </div>
 
-    <div class="vocab-section">
+    <div class="vocab-section" data-cat="questions">
       <div class="vocab-title">Questions &amp; answers</div>
       <div class="vocab-grid">
         <div class="vocab-item"><span class="sv">Vilken våning bor du på?</span><span class="tr">Which floor do you live on?</span></div>
@@ -680,7 +721,7 @@
 
   </div>
 
-  <div class="vocab-section" style="margin-top:8px">
+  <div class="vocab-section" data-cat="numbers" style="margin-top:8px">
     <div class="vocab-title">Numbers — Cardinal &amp; Ordinal</div>
     <p style="color:var(--secondary-text);font-size:13px;margin-bottom:12px;line-height:1.5">Cardinals = <em>how many</em>. Ordinals = <em>which position</em> (first, second…). Ordinals are used for dates — e.g. <strong style="color:var(--text)">den tredje maj</strong> (3rd of May).</p>
     <div class="tbl-wrap" style="margin-bottom:16px">
@@ -1250,13 +1291,16 @@ document.getElementById("prev-card").addEventListener("click",(e)=>{
   cardIdx = (cardIdx-1+deck.length) % deck.length;
   renderCard();
 });
-document.querySelectorAll("#deck-picker .chip").forEach(b=>{
-  b.addEventListener("click",()=>{
-    document.querySelectorAll("#deck-picker .chip").forEach(x=>x.classList.remove("active"));
-    b.classList.add("active");
-    currentDeck = b.dataset.deck;
-    cardIdx = 0;
-    renderCard();
+document.getElementById("deck-picker").addEventListener("change",function(){
+  currentDeck = this.value;
+  cardIdx = 0;
+  renderCard();
+});
+
+document.getElementById("vocab-filter").addEventListener("change",function(){
+  const val = this.value;
+  document.querySelectorAll("#panel-vocab .vocab-section[data-cat]").forEach(s=>{
+    s.style.display = (val==="all"||s.dataset.cat===val) ? "" : "none";
   });
 });
 renderCard();
