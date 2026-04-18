@@ -1,0 +1,1460 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Svenska D3 — Study Guide</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --white:#FFFFFF;
+    --near-white:#F9FAFB;
+    --light-gray:#F3F4F6;
+    --border:#E5E7EB;
+    --muted-text:#9CA3AF;
+    --secondary-text:#6B7280;
+    --label-text:#374151;
+    --text:#111827;
+    --sky:#8CE4FF;
+    --sky-tint:#E8F9FF;
+    --sky-dark:#6EDAF7;
+    --yellow:#FEEE91;
+    --yellow-tint:#FFFDE8;
+    --orange:#FFA239;
+    --orange-tint:#FFF3E0;
+    --coral:#FF5656;
+    --coral-tint:#FFE8E8;
+    --success:#16A34A;
+    --shadow-lifted:0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+    --shadow-raised:0 4px 12px rgba(0,0,0,0.08), 0 2px 4px rgba(0,0,0,0.05);
+  }
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  html,body{
+    background:var(--white);
+    color:var(--text);
+    font-family:"Inter",system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+    font-size:16px;line-height:1.6;
+    min-height:100%;
+    -webkit-font-smoothing:antialiased;
+    text-rendering:optimizeLegibility;
+  }
+  body{padding:24px 24px 96px;max-width:1200px;margin:0 auto}
+
+  header{padding:24px 0 32px;border-bottom:1px solid var(--border);margin-bottom:32px}
+  .kicker{font-size:12px;font-weight:500;letter-spacing:0.01em;color:var(--secondary-text);text-transform:uppercase;margin-bottom:8px}
+  h1{font-size:36px;font-weight:700;line-height:1.2;letter-spacing:-0.01em;color:var(--text)}
+  .sub{color:var(--secondary-text);font-size:16px;margin-top:8px;font-weight:400}
+
+  nav.tabs{
+    display:flex;gap:4px;margin:0 0 32px;
+    background:var(--near-white);padding:4px;border-radius:12px;
+    border:1px solid var(--border);
+    overflow-x:auto;-webkit-overflow-scrolling:touch;
+  }
+  nav.tabs button{
+    flex:1;min-width:max-content;
+    background:transparent;border:0;padding:10px 16px;border-radius:8px;
+    font-family:inherit;font-size:14px;font-weight:500;
+    color:var(--secondary-text);
+    cursor:pointer;transition:all .15s ease;
+    white-space:nowrap;
+  }
+  nav.tabs button.active{background:var(--white);color:var(--text);font-weight:600;box-shadow:var(--shadow-lifted)}
+  nav.tabs button:not(.active):hover{color:var(--text)}
+  nav.tabs button:focus-visible{outline:2px solid var(--sky);outline-offset:2px}
+
+  section.panel{display:none;animation:fade .25s ease}
+  section.panel.active{display:block}
+  @keyframes fade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+
+  .chip-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px}
+  .chip{
+    background:var(--white);border:1px solid var(--border);color:var(--label-text);
+    padding:6px 14px;border-radius:999px;
+    font-family:inherit;font-size:13px;font-weight:500;
+    cursor:pointer;transition:all .15s ease;
+  }
+  .chip:hover{background:var(--near-white)}
+  .chip.active{background:var(--sky-tint);border-color:var(--sky);color:var(--text)}
+  .chip:focus-visible{outline:2px solid var(--sky);outline-offset:2px}
+
+  /* ====== VERB TABLE ====== */
+  .tbl-wrap{background:var(--white);border:1px solid var(--border);border-radius:12px;overflow:hidden}
+  .tbl-head{display:grid;grid-template-columns:1.3fr 1fr 1fr;background:var(--near-white);border-bottom:1px solid var(--border)}
+  .tbl-head div{padding:12px 16px;font-size:12px;font-weight:600;letter-spacing:0.01em;text-transform:uppercase;color:var(--secondary-text)}
+  .tbl-row{display:grid;grid-template-columns:1.3fr 1fr 1fr;border-bottom:1px solid var(--border);transition:background .15s ease}
+  .tbl-row:last-child{border-bottom:0}
+  .tbl-row:hover{background:var(--near-white)}
+  .tbl-row > div{padding:14px 16px;font-size:15px;font-weight:500;color:var(--text)}
+  .tbl-row .inf{font-weight:600}
+  .tbl-row .en{display:block;margin-top:4px;font-size:12px;font-weight:400;color:var(--secondary-text)}
+  .tbl-row.hide{display:none}
+
+  h2{font-size:22px;font-weight:600;line-height:1.4;color:var(--text);margin:40px 0 16px}
+  h3{font-size:18px;font-weight:500;line-height:1.4;color:var(--text);margin:32px 0 12px}
+
+  /* Examples */
+  .example{background:var(--white);border:1px solid var(--border);border-radius:12px;padding:16px 20px;margin-bottom:12px;font-size:15px}
+  .example .num{display:inline-block;background:var(--sky-tint);color:var(--text);font-family:"JetBrains Mono",monospace;font-size:12px;font-weight:500;padding:2px 8px;border-radius:999px;margin-right:8px}
+  .example .verb-tag{display:inline-block;background:var(--yellow-tint);color:var(--text);font-size:12px;font-weight:500;padding:2px 10px;border-radius:999px;margin-right:8px}
+  .example .sv{color:var(--text);font-weight:500}
+  .example .en-trans{display:block;margin-top:6px;color:var(--secondary-text);font-size:13px}
+
+  /* Flashcards */
+  .card-stage{perspective:1200px;margin:24px 0 16px;max-width:520px;margin-left:auto;margin-right:auto}
+  .card{position:relative;width:100%;aspect-ratio:5/3;transform-style:preserve-3d;transition:transform .5s cubic-bezier(.4,0,.2,1);cursor:pointer}
+  .card.flipped{transform:rotateY(180deg)}
+  .face{position:absolute;inset:0;border-radius:16px;backface-visibility:hidden;-webkit-backface-visibility:hidden;display:flex;flex-direction:column;justify-content:center;align-items:center;padding:32px;text-align:center;border:1px solid var(--border);box-shadow:var(--shadow-lifted)}
+  .face.front{background:var(--white)}
+  .face.back{background:var(--sky-tint);transform:rotateY(180deg);border-color:var(--sky)}
+  .face .label{font-size:11px;font-weight:500;letter-spacing:0.01em;text-transform:uppercase;color:var(--secondary-text);margin-bottom:12px}
+  .face .word{font-size:clamp(28px,6vw,40px);font-weight:700;line-height:1.2;letter-spacing:-0.01em;color:var(--text)}
+  .face .extra{font-size:14px;color:var(--secondary-text);margin-top:12px;font-weight:400}
+
+  .card-controls{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:16px;max-width:520px;margin-left:auto;margin-right:auto}
+  .btn{font-family:inherit;font-size:14px;font-weight:500;padding:10px 20px;border-radius:8px;cursor:pointer;transition:all .15s ease;border:1px solid transparent;min-height:44px}
+  .btn:focus-visible{outline:2px solid var(--sky);outline-offset:2px}
+  .btn-secondary{background:var(--white);color:var(--text);border-color:var(--border)}
+  .btn-secondary:hover{background:var(--near-white)}
+  .btn-primary{background:var(--sky);color:var(--text);font-weight:600}
+  .btn-primary:hover{background:var(--sky-dark)}
+  .card-counter{font-family:"JetBrains Mono",monospace;font-size:13px;color:var(--secondary-text);text-align:center;min-width:80px}
+  .flip-hint{text-align:center;margin-top:12px;color:var(--muted-text);font-size:13px}
+
+  /* Quiz */
+  .quiz-card{background:var(--white);border:1px solid var(--border);border-radius:12px;padding:24px;box-shadow:var(--shadow-lifted);max-width:680px;margin:0 auto}
+  .quiz-q{font-size:16px;color:var(--secondary-text);margin-bottom:8px;font-weight:400}
+  .quiz-target{font-size:28px;font-weight:700;line-height:1.3;color:var(--text);margin-bottom:20px;letter-spacing:-0.01em}
+  .quiz-label{font-size:14px;font-weight:500;color:var(--label-text);margin-bottom:6px;display:block}
+  .quiz-input{width:100%;padding:10px 14px;border:1px solid var(--border);border-radius:8px;font-family:inherit;font-size:16px;color:var(--text);background:var(--white);transition:border .15s ease, box-shadow .15s ease;min-height:44px}
+  .quiz-input::placeholder{color:var(--muted-text)}
+  .quiz-input:focus{outline:none;border-color:var(--sky);box-shadow:0 0 0 3px rgba(140,228,255,0.30)}
+  .quiz-input.err{border-color:var(--coral);box-shadow:0 0 0 3px rgba(255,86,86,0.20)}
+  .quiz-btn{width:100%;margin-top:16px;background:var(--sky);color:var(--text);border:0;padding:12px 20px;border-radius:8px;font-family:inherit;font-size:15px;font-weight:600;cursor:pointer;transition:background .15s ease;min-height:44px}
+  .quiz-btn:hover{background:var(--sky-dark)}
+  .quiz-feedback{margin-top:16px;padding:12px 16px;border-radius:8px;font-size:14px;display:none;font-weight:500}
+  .quiz-feedback.show{display:block;animation:fade .2s ease}
+  .quiz-feedback.ok{background:var(--sky-tint);color:var(--text);border:1px solid var(--sky)}
+  .quiz-feedback.bad{background:var(--coral-tint);color:var(--text);border:1px solid var(--coral)}
+  .quiz-score{font-family:"JetBrains Mono",monospace;font-size:13px;color:var(--secondary-text);text-align:right;margin-bottom:12px;max-width:680px;margin-left:auto;margin-right:auto}
+
+  /* Vocab */
+  .vocab-section{margin-bottom:32px}
+  .vocab-title{font-size:12px;font-weight:600;letter-spacing:0.01em;text-transform:uppercase;color:var(--secondary-text);margin-bottom:12px}
+  .vocab-grid{background:var(--white);border:1px solid var(--border);border-radius:12px;overflow:hidden}
+  .vocab-item{display:grid;grid-template-columns:1fr 1.2fr;gap:16px;padding:12px 16px;border-bottom:1px solid var(--border);font-size:15px;align-items:baseline}
+  .vocab-item:last-child{border-bottom:0}
+  .vocab-item:hover{background:var(--near-white)}
+  .vocab-item .sv{font-weight:600;color:var(--text)}
+  .vocab-item .tr{color:var(--secondary-text);font-weight:400;font-size:14px}
+
+  /* ====== LUCKTEXT (dialogue practice) ====== */
+  .lucktext-intro{
+    background:var(--sky-tint);
+    border:1px solid var(--sky);
+    border-radius:12px;padding:16px 20px;margin-bottom:24px;
+    font-size:14px;color:var(--text);
+  }
+  .lucktext-intro strong{font-weight:600}
+  .dialogue{
+    background:var(--white);border:1px solid var(--border);
+    border-radius:12px;padding:8px 0;
+  }
+  .line{
+    display:grid;grid-template-columns:90px 1fr;gap:16px;
+    padding:14px 20px;border-bottom:1px solid var(--border);
+    align-items:baseline;
+  }
+  .line:last-child{border-bottom:0}
+  .speaker{
+    font-size:13px;font-weight:600;color:var(--secondary-text);
+    letter-spacing:0.01em;
+  }
+  .speaker.c-val{color:var(--orange)}
+  .speaker.c-tor{color:var(--sky-dark)}
+  .speaker.c-car{color:#a05ec9}
+  .speaker.c-flo{color:var(--success)}
+  .speaker.c-eri{color:var(--coral)}
+  .line-text{font-size:15px;line-height:1.6;color:var(--text)}
+  .blank-input{
+    display:inline-block;
+    min-width:110px;width:auto;
+    padding:2px 8px;margin:0 2px;
+    border:none;border-bottom:2px solid var(--border);
+    font-family:inherit;font-size:15px;font-weight:500;
+    color:var(--text);background:transparent;
+    transition:all .15s ease;text-align:center;
+  }
+  .blank-input:focus{outline:none;border-bottom-color:var(--sky);background:var(--sky-tint)}
+  .blank-input.ok{border-bottom-color:var(--success);color:var(--success);background:transparent}
+  .blank-input.err{border-bottom-color:var(--coral);color:var(--coral);background:var(--coral-tint)}
+  .blank-input.reveal{border-bottom-color:var(--sky);color:var(--text);background:var(--sky-tint);font-weight:600}
+
+  .lucktext-actions{
+    display:flex;gap:8px;margin-top:20px;flex-wrap:wrap;
+  }
+  .lucktext-score{
+    margin-top:16px;padding:12px 16px;border-radius:8px;
+    background:var(--near-white);border:1px solid var(--border);
+    font-size:14px;color:var(--secondary-text);
+    font-family:"JetBrains Mono",monospace;
+    display:none;
+  }
+  .lucktext-score.show{display:block}
+  .lucktext-score strong{color:var(--text);font-weight:600}
+
+  footer{text-align:center;margin-top:48px;padding-top:24px;border-top:1px solid var(--border);font-size:13px;color:var(--muted-text)}
+
+  @media (min-width:1024px){
+    body{padding:32px 64px 96px}
+    .vocab-columns{display:grid;grid-template-columns:1fr 1fr;gap:24px}
+  }
+  @media (max-width:640px){
+    body{padding:16px 16px 96px}
+    h1{font-size:28px}
+    .tbl-head div,.tbl-row > div{padding:10px 12px;font-size:13px}
+    .face .word{font-size:26px}
+    nav.tabs button{font-size:13px;padding:10px 12px}
+    .quiz-target{font-size:22px}
+    .line{grid-template-columns:70px 1fr;gap:12px;padding:12px 14px}
+    .speaker{font-size:12px}
+    .line-text{font-size:14px}
+    .blank-input{min-width:90px;font-size:14px}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="kicker">Svenska · Nivå D3</div>
+  <h1>Study Guide</h1>
+  <p class="sub">Verbs · vocabulary · Lucktext · Easter · library</p>
+</header>
+
+<nav class="tabs">
+  <button data-tab="verbs" class="active">Verbs</button>
+  <button data-tab="cards">Flashcards</button>
+  <button data-tab="vocab">Vocabulary</button>
+  <button data-tab="lucktext">Lucktext</button>
+  <button data-tab="quiz">Quiz</button>
+</nav>
+
+<!-- ============ VERBS ============ -->
+<section class="panel active" id="panel-verbs">
+
+  <!-- Modal verbs table (always visible at top) -->
+  <div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px">
+    <h2 style="margin:0;font-size:20px">Modal verbs</h2>
+    <span style="font-size:13px;color:var(--secondary-text)">No -r in present · used with another verb in infinitive</span>
+  </div>
+  <div class="tbl-wrap" style="margin-bottom:12px">
+    <div class="tbl-head">
+      <div>Infinitiv</div><div>Nu (present)</div><div>Då (past)</div>
+    </div>
+    <div id="modal-verb-rows"></div>
+  </div>
+  <div style="background:var(--yellow-tint);border:1px solid var(--yellow);border-radius:12px;padding:12px 16px;margin-bottom:32px;font-size:13px;color:var(--text);line-height:1.6">
+    <strong>Tip:</strong> Follow a modal with an infinitive <em>without</em> "att" — <strong>Jag kan tvätta</strong> · <strong>Hon ska boka</strong> · <strong>Vill du ha?</strong>
+  </div>
+
+  <!-- Regular verbs -->
+  <div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px">
+    <h2 style="margin:0;font-size:20px">Regular verbs</h2>
+  </div>
+  <div class="chip-row" id="verb-filter">
+    <button class="chip active" data-cat="all">All verbs</button>
+    <button class="chip" data-cat="library">Library &amp; study</button>
+    <button class="chip" data-cat="daily">Daily routine</button>
+  </div>
+  <div class="tbl-wrap">
+    <div class="tbl-head">
+      <div>Infinitiv</div><div>Nu (present)</div><div>Då (past)</div>
+    </div>
+    <div id="verb-rows"></div>
+  </div>
+
+  <h2>Examples in <span style="color:var(--secondary-text);font-weight:500;font-size:18px">då (past tense)</span></h2>
+  <div id="examples"></div>
+</section>
+
+<!-- ============ FLASHCARDS ============ -->
+<section class="panel" id="panel-cards">
+  <div class="chip-row" id="deck-picker">
+    <button class="chip active" data-deck="all">All</button>
+    <button class="chip" data-deck="verbs-all">All verbs</button>
+    <button class="chip" data-deck="verbs-daily">Daily routine verbs</button>
+    <button class="chip" data-deck="verbs-library">Library verbs</button>
+    <button class="chip" data-deck="verbs-modal">Modal verbs</button>
+    <button class="chip" data-deck="numbers">Numbers</button>
+    <button class="chip" data-deck="ordinals">Ordinals</button>
+    <button class="chip" data-deck="greetings">Greetings &amp; phrases</button>
+    <button class="chip" data-deck="food">Food &amp; dining</button>
+    <button class="chip" data-deck="shopping">Shopping &amp; money</button>
+    <button class="chip" data-deck="transport">Transport &amp; directions</button>
+    <button class="chip" data-deck="home">Home &amp; living</button>
+    <button class="chip" data-deck="time">Time, days &amp; months</button>
+    <button class="chip" data-deck="people">People &amp; family</button>
+    <button class="chip" data-deck="health">Health &amp; emergencies</button>
+    <button class="chip" data-deck="laundry">Tvättstugan</button>
+    <button class="chip" data-deck="library">Library words</button>
+    <button class="chip" data-deck="easter">Easter</button>
+    <button class="chip" data-deck="lappen">Lappen expressions</button>
+  </div>
+  <div class="card-stage">
+    <div class="card" id="card">
+      <div class="face front">
+        <div class="label">Question</div>
+        <div class="word" id="card-front">—</div>
+        <div class="extra" id="card-front-extra"></div>
+      </div>
+      <div class="face back">
+        <div class="label">Answer</div>
+        <div class="word" id="card-back">—</div>
+        <div class="extra" id="card-back-extra"></div>
+      </div>
+    </div>
+  </div>
+  <div class="card-controls">
+    <button class="btn btn-secondary" id="prev-card">← Previous</button>
+    <span class="card-counter" id="card-counter">1 / 1</span>
+    <button class="btn btn-primary" id="next-card">Next →</button>
+  </div>
+  <p class="flip-hint">Tap the card to flip it</p>
+</section>
+
+<!-- ============ VOCAB ============ -->
+<section class="panel" id="panel-vocab">
+  <div class="vocab-columns">
+
+    <div class="vocab-section">
+      <div class="vocab-title">Greetings &amp; essential phrases</div>
+      <div class="vocab-grid">
+        <div class="vocab-item"><span class="sv">hej</span><span class="tr">hi / hello</span></div>
+        <div class="vocab-item"><span class="sv">hej då</span><span class="tr">goodbye</span></div>
+        <div class="vocab-item"><span class="sv">god morgon</span><span class="tr">good morning</span></div>
+        <div class="vocab-item"><span class="sv">god kväll</span><span class="tr">good evening</span></div>
+        <div class="vocab-item"><span class="sv">god natt</span><span class="tr">good night</span></div>
+        <div class="vocab-item"><span class="sv">tack</span><span class="tr">thanks / please</span></div>
+        <div class="vocab-item"><span class="sv">tack så mycket</span><span class="tr">thank you very much</span></div>
+        <div class="vocab-item"><span class="sv">varsågod</span><span class="tr">you're welcome / here you go</span></div>
+        <div class="vocab-item"><span class="sv">förlåt</span><span class="tr">sorry / excuse me</span></div>
+        <div class="vocab-item"><span class="sv">ursäkta</span><span class="tr">excuse me (to get attention)</span></div>
+        <div class="vocab-item"><span class="sv">ja</span><span class="tr">yes</span></div>
+        <div class="vocab-item"><span class="sv">nej</span><span class="tr">no</span></div>
+        <div class="vocab-item"><span class="sv">kanske</span><span class="tr">maybe</span></div>
+        <div class="vocab-item"><span class="sv">hur mår du?</span><span class="tr">how are you?</span></div>
+        <div class="vocab-item"><span class="sv">bra, tack</span><span class="tr">good, thanks</span></div>
+        <div class="vocab-item"><span class="sv">vad heter du?</span><span class="tr">what's your name?</span></div>
+        <div class="vocab-item"><span class="sv">jag heter…</span><span class="tr">my name is…</span></div>
+        <div class="vocab-item"><span class="sv">trevligt att träffas</span><span class="tr">nice to meet you</span></div>
+        <div class="vocab-item"><span class="sv">jag förstår inte</span><span class="tr">I don't understand</span></div>
+        <div class="vocab-item"><span class="sv">talar du engelska?</span><span class="tr">do you speak English?</span></div>
+        <div class="vocab-item"><span class="sv">jag pratar lite svenska</span><span class="tr">I speak a little Swedish</span></div>
+        <div class="vocab-item"><span class="sv">kan du upprepa?</span><span class="tr">can you repeat?</span></div>
+        <div class="vocab-item"><span class="sv">långsammare, tack</span><span class="tr">slower, please</span></div>
+      </div>
+    </div>
+
+    <div class="vocab-section">
+      <div class="vocab-title">Food &amp; dining</div>
+      <div class="vocab-grid">
+        <div class="vocab-item"><span class="sv">mat</span><span class="tr">food</span></div>
+        <div class="vocab-item"><span class="sv">frukost</span><span class="tr">breakfast</span></div>
+        <div class="vocab-item"><span class="sv">lunch</span><span class="tr">lunch</span></div>
+        <div class="vocab-item"><span class="sv">middag</span><span class="tr">dinner</span></div>
+        <div class="vocab-item"><span class="sv">fika</span><span class="tr">coffee break (Swedish tradition)</span></div>
+        <div class="vocab-item"><span class="sv">kaffe</span><span class="tr">coffee</span></div>
+        <div class="vocab-item"><span class="sv">te</span><span class="tr">tea</span></div>
+        <div class="vocab-item"><span class="sv">vatten</span><span class="tr">water</span></div>
+        <div class="vocab-item"><span class="sv">mjölk</span><span class="tr">milk</span></div>
+        <div class="vocab-item"><span class="sv">öl</span><span class="tr">beer</span></div>
+        <div class="vocab-item"><span class="sv">vin</span><span class="tr">wine</span></div>
+        <div class="vocab-item"><span class="sv">bröd</span><span class="tr">bread</span></div>
+        <div class="vocab-item"><span class="sv">smör</span><span class="tr">butter</span></div>
+        <div class="vocab-item"><span class="sv">ost</span><span class="tr">cheese</span></div>
+        <div class="vocab-item"><span class="sv">kött</span><span class="tr">meat</span></div>
+        <div class="vocab-item"><span class="sv">kyckling</span><span class="tr">chicken</span></div>
+        <div class="vocab-item"><span class="sv">fisk</span><span class="tr">fish</span></div>
+        <div class="vocab-item"><span class="sv">grönsaker</span><span class="tr">vegetables</span></div>
+        <div class="vocab-item"><span class="sv">frukt</span><span class="tr">fruit</span></div>
+        <div class="vocab-item"><span class="sv">äpple</span><span class="tr">apple</span></div>
+        <div class="vocab-item"><span class="sv">socker</span><span class="tr">sugar</span></div>
+        <div class="vocab-item"><span class="sv">salt</span><span class="tr">salt</span></div>
+        <div class="vocab-item"><span class="sv">smakligt!</span><span class="tr">enjoy your meal!</span></div>
+        <div class="vocab-item"><span class="sv">notan, tack</span><span class="tr">the bill, please</span></div>
+        <div class="vocab-item"><span class="sv">en bordsbokning</span><span class="tr">a table reservation</span></div>
+        <div class="vocab-item"><span class="sv">meny</span><span class="tr">menu</span></div>
+      </div>
+    </div>
+
+    <div class="vocab-section">
+      <div class="vocab-title">Shopping &amp; money</div>
+      <div class="vocab-grid">
+        <div class="vocab-item"><span class="sv">affär / butik</span><span class="tr">shop / store</span></div>
+        <div class="vocab-item"><span class="sv">mataffär</span><span class="tr">grocery store</span></div>
+        <div class="vocab-item"><span class="sv">apotek</span><span class="tr">pharmacy</span></div>
+        <div class="vocab-item"><span class="sv">systembolaget</span><span class="tr">state alcohol store</span></div>
+        <div class="vocab-item"><span class="sv">pengar</span><span class="tr">money</span></div>
+        <div class="vocab-item"><span class="sv">kronor (kr)</span><span class="tr">Swedish kronor</span></div>
+        <div class="vocab-item"><span class="sv">kontant</span><span class="tr">cash</span></div>
+        <div class="vocab-item"><span class="sv">kort</span><span class="tr">card</span></div>
+        <div class="vocab-item"><span class="sv">Swish</span><span class="tr">Swedish mobile payment app</span></div>
+        <div class="vocab-item"><span class="sv">kvitto</span><span class="tr">receipt</span></div>
+        <div class="vocab-item"><span class="sv">rea</span><span class="tr">sale / discount</span></div>
+        <div class="vocab-item"><span class="sv">rabatt</span><span class="tr">discount</span></div>
+        <div class="vocab-item"><span class="sv">pris</span><span class="tr">price</span></div>
+        <div class="vocab-item"><span class="sv">dyr</span><span class="tr">expensive</span></div>
+        <div class="vocab-item"><span class="sv">billig</span><span class="tr">cheap</span></div>
+        <div class="vocab-item"><span class="sv">öppet</span><span class="tr">open</span></div>
+        <div class="vocab-item"><span class="sv">stängt</span><span class="tr">closed</span></div>
+        <div class="vocab-item"><span class="sv">Vad kostar det?</span><span class="tr">How much is it?</span></div>
+        <div class="vocab-item"><span class="sv">Har ni…?</span><span class="tr">Do you have…?</span></div>
+        <div class="vocab-item"><span class="sv">Jag tar den</span><span class="tr">I'll take it</span></div>
+        <div class="vocab-item"><span class="sv">en påse, tack</span><span class="tr">a bag, please</span></div>
+      </div>
+    </div>
+
+    <div class="vocab-section">
+      <div class="vocab-title">Transport &amp; directions</div>
+      <div class="vocab-grid">
+        <div class="vocab-item"><span class="sv">buss</span><span class="tr">bus</span></div>
+        <div class="vocab-item"><span class="sv">tunnelbana (T-bana)</span><span class="tr">metro / subway</span></div>
+        <div class="vocab-item"><span class="sv">tåg</span><span class="tr">train</span></div>
+        <div class="vocab-item"><span class="sv">spårvagn</span><span class="tr">tram</span></div>
+        <div class="vocab-item"><span class="sv">bil</span><span class="tr">car</span></div>
+        <div class="vocab-item"><span class="sv">cykel</span><span class="tr">bicycle</span></div>
+        <div class="vocab-item"><span class="sv">flygplats</span><span class="tr">airport</span></div>
+        <div class="vocab-item"><span class="sv">station</span><span class="tr">station</span></div>
+        <div class="vocab-item"><span class="sv">hållplats</span><span class="tr">stop / bus stop</span></div>
+        <div class="vocab-item"><span class="sv">biljett</span><span class="tr">ticket</span></div>
+        <div class="vocab-item"><span class="sv">SL-kort</span><span class="tr">Stockholm transit card</span></div>
+        <div class="vocab-item"><span class="sv">höger</span><span class="tr">right</span></div>
+        <div class="vocab-item"><span class="sv">vänster</span><span class="tr">left</span></div>
+        <div class="vocab-item"><span class="sv">rakt fram</span><span class="tr">straight ahead</span></div>
+        <div class="vocab-item"><span class="sv">nära</span><span class="tr">near / close</span></div>
+        <div class="vocab-item"><span class="sv">långt</span><span class="tr">far</span></div>
+        <div class="vocab-item"><span class="sv">här</span><span class="tr">here</span></div>
+        <div class="vocab-item"><span class="sv">där</span><span class="tr">there</span></div>
+        <div class="vocab-item"><span class="sv">gata</span><span class="tr">street</span></div>
+        <div class="vocab-item"><span class="sv">torg</span><span class="tr">square / plaza</span></div>
+        <div class="vocab-item"><span class="sv">Var ligger…?</span><span class="tr">Where is…?</span></div>
+        <div class="vocab-item"><span class="sv">Hur kommer jag till…?</span><span class="tr">How do I get to…?</span></div>
+      </div>
+    </div>
+
+    <div class="vocab-section">
+      <div class="vocab-title">Home &amp; living</div>
+      <div class="vocab-grid">
+        <div class="vocab-item"><span class="sv">hem</span><span class="tr">home</span></div>
+        <div class="vocab-item"><span class="sv">lägenhet</span><span class="tr">apartment</span></div>
+        <div class="vocab-item"><span class="sv">hus</span><span class="tr">house</span></div>
+        <div class="vocab-item"><span class="sv">rum</span><span class="tr">room</span></div>
+        <div class="vocab-item"><span class="sv">kök</span><span class="tr">kitchen</span></div>
+        <div class="vocab-item"><span class="sv">badrum</span><span class="tr">bathroom</span></div>
+        <div class="vocab-item"><span class="sv">sovrum</span><span class="tr">bedroom</span></div>
+        <div class="vocab-item"><span class="sv">vardagsrum</span><span class="tr">living room</span></div>
+        <div class="vocab-item"><span class="sv">våning</span><span class="tr">floor / story</span></div>
+        <div class="vocab-item"><span class="sv">hiss</span><span class="tr">elevator</span></div>
+        <div class="vocab-item"><span class="sv">trappa</span><span class="tr">stairs</span></div>
+        <div class="vocab-item"><span class="sv">nyckel</span><span class="tr">key</span></div>
+        <div class="vocab-item"><span class="sv">dörr</span><span class="tr">door</span></div>
+        <div class="vocab-item"><span class="sv">fönster</span><span class="tr">window</span></div>
+        <div class="vocab-item"><span class="sv">säng</span><span class="tr">bed</span></div>
+        <div class="vocab-item"><span class="sv">bord</span><span class="tr">table</span></div>
+        <div class="vocab-item"><span class="sv">stol</span><span class="tr">chair</span></div>
+        <div class="vocab-item"><span class="sv">hyra</span><span class="tr">to rent / rent (n.)</span></div>
+        <div class="vocab-item"><span class="sv">hyresvärd</span><span class="tr">landlord</span></div>
+        <div class="vocab-item"><span class="sv">granne</span><span class="tr">neighbor</span></div>
+        <div class="vocab-item"><span class="sv">sopor</span><span class="tr">trash / garbage</span></div>
+        <div class="vocab-item"><span class="sv">återvinning</span><span class="tr">recycling</span></div>
+      </div>
+    </div>
+
+    <div class="vocab-section">
+      <div class="vocab-title">Time, days &amp; months</div>
+      <div class="vocab-grid">
+        <div class="vocab-item"><span class="sv">idag</span><span class="tr">today</span></div>
+        <div class="vocab-item"><span class="sv">imorgon</span><span class="tr">tomorrow</span></div>
+        <div class="vocab-item"><span class="sv">igår</span><span class="tr">yesterday</span></div>
+        <div class="vocab-item"><span class="sv">nu</span><span class="tr">now</span></div>
+        <div class="vocab-item"><span class="sv">sedan</span><span class="tr">then / since</span></div>
+        <div class="vocab-item"><span class="sv">morgon</span><span class="tr">morning</span></div>
+        <div class="vocab-item"><span class="sv">kväll</span><span class="tr">evening</span></div>
+        <div class="vocab-item"><span class="sv">natt</span><span class="tr">night</span></div>
+        <div class="vocab-item"><span class="sv">vecka</span><span class="tr">week</span></div>
+        <div class="vocab-item"><span class="sv">månad</span><span class="tr">month</span></div>
+        <div class="vocab-item"><span class="sv">år</span><span class="tr">year</span></div>
+        <div class="vocab-item"><span class="sv">måndag</span><span class="tr">Monday</span></div>
+        <div class="vocab-item"><span class="sv">tisdag</span><span class="tr">Tuesday</span></div>
+        <div class="vocab-item"><span class="sv">onsdag</span><span class="tr">Wednesday</span></div>
+        <div class="vocab-item"><span class="sv">torsdag</span><span class="tr">Thursday</span></div>
+        <div class="vocab-item"><span class="sv">fredag</span><span class="tr">Friday</span></div>
+        <div class="vocab-item"><span class="sv">lördag</span><span class="tr">Saturday</span></div>
+        <div class="vocab-item"><span class="sv">söndag</span><span class="tr">Sunday</span></div>
+        <div class="vocab-item"><span class="sv">januari</span><span class="tr">January</span></div>
+        <div class="vocab-item"><span class="sv">februari</span><span class="tr">February</span></div>
+        <div class="vocab-item"><span class="sv">mars</span><span class="tr">March</span></div>
+        <div class="vocab-item"><span class="sv">april</span><span class="tr">April</span></div>
+        <div class="vocab-item"><span class="sv">maj</span><span class="tr">May</span></div>
+        <div class="vocab-item"><span class="sv">juni</span><span class="tr">June</span></div>
+        <div class="vocab-item"><span class="sv">juli</span><span class="tr">July</span></div>
+        <div class="vocab-item"><span class="sv">augusti</span><span class="tr">August</span></div>
+        <div class="vocab-item"><span class="sv">september</span><span class="tr">September</span></div>
+        <div class="vocab-item"><span class="sv">oktober</span><span class="tr">October</span></div>
+        <div class="vocab-item"><span class="sv">november</span><span class="tr">November</span></div>
+        <div class="vocab-item"><span class="sv">december</span><span class="tr">December</span></div>
+        <div class="vocab-item"><span class="sv">hur dags?</span><span class="tr">at what time?</span></div>
+        <div class="vocab-item"><span class="sv">klockan är…</span><span class="tr">the time is…</span></div>
+      </div>
+    </div>
+
+    <div class="vocab-section">
+      <div class="vocab-title">People &amp; family</div>
+      <div class="vocab-grid">
+        <div class="vocab-item"><span class="sv">familj</span><span class="tr">family</span></div>
+        <div class="vocab-item"><span class="sv">mamma</span><span class="tr">mom</span></div>
+        <div class="vocab-item"><span class="sv">pappa</span><span class="tr">dad</span></div>
+        <div class="vocab-item"><span class="sv">syster</span><span class="tr">sister</span></div>
+        <div class="vocab-item"><span class="sv">bror</span><span class="tr">brother</span></div>
+        <div class="vocab-item"><span class="sv">barn</span><span class="tr">child / children</span></div>
+        <div class="vocab-item"><span class="sv">son</span><span class="tr">son</span></div>
+        <div class="vocab-item"><span class="sv">dotter</span><span class="tr">daughter</span></div>
+        <div class="vocab-item"><span class="sv">man</span><span class="tr">husband / man</span></div>
+        <div class="vocab-item"><span class="sv">fru</span><span class="tr">wife / Mrs.</span></div>
+        <div class="vocab-item"><span class="sv">pojkvän</span><span class="tr">boyfriend</span></div>
+        <div class="vocab-item"><span class="sv">flickvän</span><span class="tr">girlfriend</span></div>
+        <div class="vocab-item"><span class="sv">vän</span><span class="tr">friend</span></div>
+        <div class="vocab-item"><span class="sv">kompis</span><span class="tr">buddy / friend (casual)</span></div>
+        <div class="vocab-item"><span class="sv">kollega</span><span class="tr">colleague</span></div>
+        <div class="vocab-item"><span class="sv">pojke</span><span class="tr">boy</span></div>
+        <div class="vocab-item"><span class="sv">flicka</span><span class="tr">girl</span></div>
+        <div class="vocab-item"><span class="sv">kvinna</span><span class="tr">woman</span></div>
+        <div class="vocab-item"><span class="sv">mormor / farmor</span><span class="tr">grandma (mother's / father's)</span></div>
+        <div class="vocab-item"><span class="sv">morfar / farfar</span><span class="tr">grandpa (mother's / father's)</span></div>
+      </div>
+    </div>
+
+    <div class="vocab-section">
+      <div class="vocab-title">Health &amp; emergencies</div>
+      <div class="vocab-grid">
+        <div class="vocab-item"><span class="sv">sjuk</span><span class="tr">sick</span></div>
+        <div class="vocab-item"><span class="sv">frisk</span><span class="tr">healthy</span></div>
+        <div class="vocab-item"><span class="sv">ont</span><span class="tr">hurt / pain</span></div>
+        <div class="vocab-item"><span class="sv">Jag har ont i…</span><span class="tr">I have pain in…</span></div>
+        <div class="vocab-item"><span class="sv">huvud</span><span class="tr">head</span></div>
+        <div class="vocab-item"><span class="sv">mage</span><span class="tr">stomach</span></div>
+        <div class="vocab-item"><span class="sv">rygg</span><span class="tr">back</span></div>
+        <div class="vocab-item"><span class="sv">feber</span><span class="tr">fever</span></div>
+        <div class="vocab-item"><span class="sv">förkyld</span><span class="tr">having a cold</span></div>
+        <div class="vocab-item"><span class="sv">läkare / doktor</span><span class="tr">doctor</span></div>
+        <div class="vocab-item"><span class="sv">sjukhus</span><span class="tr">hospital</span></div>
+        <div class="vocab-item"><span class="sv">vårdcentral</span><span class="tr">health clinic</span></div>
+        <div class="vocab-item"><span class="sv">medicin</span><span class="tr">medicine</span></div>
+        <div class="vocab-item"><span class="sv">akut</span><span class="tr">urgent / emergency</span></div>
+        <div class="vocab-item"><span class="sv">ambulans</span><span class="tr">ambulance</span></div>
+        <div class="vocab-item"><span class="sv">polis</span><span class="tr">police</span></div>
+        <div class="vocab-item"><span class="sv">brandkår</span><span class="tr">fire service</span></div>
+        <div class="vocab-item"><span class="sv">112</span><span class="tr">emergency number (all services)</span></div>
+        <div class="vocab-item"><span class="sv">1177</span><span class="tr">health advice line</span></div>
+        <div class="vocab-item"><span class="sv">Hjälp!</span><span class="tr">Help!</span></div>
+        <div class="vocab-item"><span class="sv">Ring ambulansen!</span><span class="tr">Call an ambulance!</span></div>
+      </div>
+    </div>
+
+    <div class="vocab-section">
+      <div class="vocab-title">Tvättstugan (laundry room)</div>
+      <div class="vocab-grid">
+        <div class="vocab-item"><span class="sv">tvätta</span><span class="tr">to wash (laundry)</span></div>
+        <div class="vocab-item"><span class="sv">tvättstugan</span><span class="tr">the laundry room</span></div>
+        <div class="vocab-item"><span class="sv">tvättmaskin</span><span class="tr">washing machine</span></div>
+        <div class="vocab-item"><span class="sv">boka</span><span class="tr">to book / reserve</span></div>
+        <div class="vocab-item"><span class="sv">bokat</span><span class="tr">booked (past participle)</span></div>
+        <div class="vocab-item"><span class="sv">slipsar</span><span class="tr">ties (plural of slips)</span></div>
+        <div class="vocab-item"><span class="sv">byxorna</span><span class="tr">the trousers / pants</span></div>
+        <div class="vocab-item"><span class="sv">choklad</span><span class="tr">chocolate</span></div>
+        <div class="vocab-item"><span class="sv">behöva</span><span class="tr">to need</span></div>
+        <div class="vocab-item"><span class="sv">hjälpa</span><span class="tr">to help</span></div>
+        <div class="vocab-item"><span class="sv">bjuda (på)</span><span class="tr">to offer / treat to</span></div>
+        <div class="vocab-item"><span class="sv">bjöd</span><span class="tr">offered (past of bjuda)</span></div>
+        <div class="vocab-item"><span class="sv">få (fick)</span><span class="tr">to get (got)</span></div>
+        <div class="vocab-item"><span class="sv">upptagen</span><span class="tr">busy / occupied</span></div>
+        <div class="vocab-item"><span class="sv">ska</span><span class="tr">will / going to</span></div>
+      </div>
+    </div>
+
+    <div class="vocab-section">
+      <div class="vocab-title">Daily routine verbs</div>
+      <div class="vocab-grid">
+        <div class="vocab-item"><span class="sv">vakna</span><span class="tr">to wake up</span></div>
+        <div class="vocab-item"><span class="sv">stiga upp</span><span class="tr">to get up</span></div>
+        <div class="vocab-item"><span class="sv">jobba</span><span class="tr">to work</span></div>
+        <div class="vocab-item"><span class="sv">dricka</span><span class="tr">to drink</span></div>
+        <div class="vocab-item"><span class="sv">duscha</span><span class="tr">to shower</span></div>
+        <div class="vocab-item"><span class="sv">kamma</span><span class="tr">to comb (hair)</span></div>
+        <div class="vocab-item"><span class="sv">borsta</span><span class="tr">to brush</span></div>
+        <div class="vocab-item"><span class="sv">klä på sig</span><span class="tr">to get dressed</span></div>
+        <div class="vocab-item"><span class="sv">börja</span><span class="tr">to begin / start</span></div>
+        <div class="vocab-item"><span class="sv">skriva</span><span class="tr">to write</span></div>
+        <div class="vocab-item"><span class="sv">ta</span><span class="tr">to take</span></div>
+        <div class="vocab-item"><span class="sv">ringa</span><span class="tr">to call (phone)</span></div>
+        <div class="vocab-item"><span class="sv">sluta</span><span class="tr">to stop / finish</span></div>
+        <div class="vocab-item"><span class="sv">handla</span><span class="tr">to shop (for groceries)</span></div>
+        <div class="vocab-item"><span class="sv">köpa</span><span class="tr">to buy</span></div>
+        <div class="vocab-item"><span class="sv">laga</span><span class="tr">to cook / to fix</span></div>
+        <div class="vocab-item"><span class="sv">steka</span><span class="tr">to fry</span></div>
+        <div class="vocab-item"><span class="sv">titta</span><span class="tr">to watch / look</span></div>
+        <div class="vocab-item"><span class="sv">sova</span><span class="tr">to sleep</span></div>
+      </div>
+    </div>
+
+    <div class="vocab-section">
+      <div class="vocab-title">Library &amp; everyday</div>
+      <div class="vocab-grid">
+        <div class="vocab-item"><span class="sv">vuxna</span><span class="tr">adults</span></div>
+        <div class="vocab-item"><span class="sv">barn</span><span class="tr">children</span></div>
+        <div class="vocab-item"><span class="sv">måla</span><span class="tr">to paint</span></div>
+        <div class="vocab-item"><span class="sv">använda</span><span class="tr">to use</span></div>
+        <div class="vocab-item"><span class="sv">låna</span><span class="tr">to borrow / to lend</span></div>
+        <div class="vocab-item"><span class="sv">sjunga</span><span class="tr">to sing</span></div>
+        <div class="vocab-item"><span class="sv">t.ex.</span><span class="tr">e.g. (till exempel)</span></div>
+        <div class="vocab-item"><span class="sv">skriva ut</span><span class="tr">to print</span></div>
+        <div class="vocab-item"><span class="sv">skanna</span><span class="tr">to scan</span></div>
+        <div class="vocab-item"><span class="sv">kopiera</span><span class="tr">to copy</span></div>
+        <div class="vocab-item"><span class="sv">studera</span><span class="tr">to study</span></div>
+        <div class="vocab-item"><span class="sv">bibliotekskort</span><span class="tr">library card</span></div>
+        <div class="vocab-item"><span class="sv">gratis</span><span class="tr">free (of charge)</span></div>
+        <div class="vocab-item"><span class="sv">åt gången</span><span class="tr">at a time</span></div>
+        <div class="vocab-item"><span class="sv">skaffa</span><span class="tr">to get / obtain</span></div>
+        <div class="vocab-item"><span class="sv">måste</span><span class="tr">must / have to</span></div>
+        <div class="vocab-item"><span class="sv">gälla</span><span class="tr">to apply / be valid</span></div>
+        <div class="vocab-item"><span class="sv">kosta</span><span class="tr">to cost</span></div>
+        <div class="vocab-item"><span class="sv">lämna (tillbaka)</span><span class="tr">to return (something)</span></div>
+        <div class="vocab-item"><span class="sv">missa</span><span class="tr">to miss</span></div>
+        <div class="vocab-item"><span class="sv">finns</span><span class="tr">there is / there are</span></div>
+        <div class="vocab-item"><span class="sv">besöka</span><span class="tr">to visit</span></div>
+      </div>
+    </div>
+
+    <div class="vocab-section">
+      <div class="vocab-title">Easter in Sweden</div>
+      <div class="vocab-grid">
+        <div class="vocab-item"><span class="sv">skärtorsdag</span><span class="tr">Maundy Thursday (Torsdag)</span></div>
+        <div class="vocab-item"><span class="sv">långfredag</span><span class="tr">Good Friday (Fredag)</span></div>
+        <div class="vocab-item"><span class="sv">påskafton</span><span class="tr">Easter Eve / Saturday (Lördag)</span></div>
+        <div class="vocab-item"><span class="sv">påskdagen</span><span class="tr">Easter Sunday (Söndag)</span></div>
+        <div class="vocab-item"><span class="sv">annandag påsk</span><span class="tr">Easter Monday (Måndag)</span></div>
+        <div class="vocab-item"><span class="sv">pynta</span><span class="tr">to decorate</span></div>
+        <div class="vocab-item"><span class="sv">klä ut (sig)</span><span class="tr">to dress up (in costume)</span></div>
+        <div class="vocab-item"><span class="sv">gömma</span><span class="tr">to hide</span></div>
+        <div class="vocab-item"><span class="sv">påskägg</span><span class="tr">Easter egg</span></div>
+        <div class="vocab-item"><span class="sv">käring</span><span class="tr">old hag / not nice word (vulgar)</span></div>
+      </div>
+    </div>
+
+    <div class="vocab-section">
+      <div class="vocab-title">Expressions from "Lappen"</div>
+      <div class="vocab-grid">
+        <div class="vocab-item"><span class="sv">sluta</span><span class="tr">to stop / quit</span></div>
+        <div class="vocab-item"><span class="sv">skrivit</span><span class="tr">written (har skrivit = has written)</span></div>
+        <div class="vocab-item"><span class="sv">lappen</span><span class="tr">the note</span></div>
+        <div class="vocab-item"><span class="sv">säkert</span><span class="tr">surely / for sure</span></div>
+        <div class="vocab-item"><span class="sv">vadå</span><span class="tr">what? (colloquial)</span></div>
+        <div class="vocab-item"><span class="sv">absolut inte</span><span class="tr">absolutely not</span></div>
+        <div class="vocab-item"><span class="sv">dörren</span><span class="tr">the door</span></div>
+        <div class="vocab-item"><span class="sv">typiskt</span><span class="tr">typical</span></div>
+      </div>
+    </div>
+
+    <div class="vocab-section">
+      <div class="vocab-title">Questions &amp; answers</div>
+      <div class="vocab-grid">
+        <div class="vocab-item"><span class="sv">Vilken våning bor du på?</span><span class="tr">Which floor do you live on?</span></div>
+        <div class="vocab-item"><span class="sv">Jag bor på __ våningen</span><span class="tr">I live on the __ floor</span></div>
+        <div class="vocab-item"><span class="sv">När fyller du år?</span><span class="tr">When is your birthday?</span></div>
+        <div class="vocab-item"><span class="sv">Jag fyller år den __</span><span class="tr">My birthday is on the __</span></div>
+        <div class="vocab-item"><span class="sv">tjugonde i nionde</span><span class="tr">the 20th of the 9th (20/9)</span></div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="vocab-section" style="margin-top:8px">
+    <div class="vocab-title">Numbers — Cardinal &amp; Ordinal</div>
+    <p style="color:var(--secondary-text);font-size:13px;margin-bottom:12px;line-height:1.5">Cardinals = <em>how many</em>. Ordinals = <em>which position</em> (first, second…). Ordinals are used for dates — e.g. <strong style="color:var(--text)">den tredje maj</strong> (3rd of May).</p>
+    <div class="tbl-wrap" style="margin-bottom:16px">
+      <div class="tbl-head" style="grid-template-columns:48px 1fr 1fr 1.2fr">
+        <div>#</div><div>Cardinal</div><div>Ordinal</div><div>Date example</div>
+      </div>
+      <div id="number-rows"></div>
+    </div>
+    <div style="background:var(--sky-tint);border:1px solid var(--sky);border-radius:12px;padding:14px 18px;font-size:13px;color:var(--text);line-height:1.6">
+      <strong>Date tip:</strong> Swedish dates use ordinal + month — <strong>den femte juni</strong> = 5th of June. 1st &amp; 2nd are irregular (<em>första, andra</em>). From 3rd onward add <strong>-e</strong> to the cardinal (tredje, fjärde, femte…). 11th (<em>elfte</em>) and 12th (<em>tolfte</em>) are also irregular.
+    </div>
+  </div>
+
+</section>
+
+<!-- ============ LUCKTEXT ============ -->
+<section class="panel" id="panel-lucktext">
+  <div class="chip-row" id="lucktext-picker">
+    <button class="chip active" data-lt="tvattstugan">Tvättstugan (Avsnitt 4)</button>
+    <button class="chip" data-lt="lappen">Lappen (Avsnitt 3)</button>
+  </div>
+
+  <div class="lucktext-intro">
+    <strong>How it works:</strong> Fill in the blanks. Press <strong>Check</strong> to see which ones are right (green) or wrong (red). Use <strong>Show answers</strong> to reveal the correct words.
+  </div>
+
+  <div id="lucktext-body"></div>
+
+  <div class="lucktext-actions">
+    <button class="btn btn-primary" id="lt-check">Check answers</button>
+    <button class="btn btn-secondary" id="lt-reveal">Show answers</button>
+    <button class="btn btn-secondary" id="lt-reset">Reset</button>
+  </div>
+  <div class="lucktext-score" id="lt-score"></div>
+</section>
+
+<!-- ============ QUIZ ============ -->
+<section class="panel" id="panel-quiz">
+  <div class="chip-row" id="quiz-mode">
+    <button class="chip active" data-qmode="inf2da">Inf → Då</button>
+    <button class="chip" data-qmode="inf2nu">Inf → Nu</button>
+    <button class="chip" data-qmode="en2sv">English → Svenska</button>
+  </div>
+  <div class="quiz-score" id="quiz-score">Correct: 0 / 0</div>
+  <div class="quiz-card">
+    <div class="quiz-q" id="quiz-q-label">—</div>
+    <div class="quiz-target" id="quiz-target">—</div>
+    <label class="quiz-label" for="quiz-input">Your answer</label>
+    <input class="quiz-input" id="quiz-input" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Type here…" />
+    <button class="quiz-btn" id="quiz-btn">Check</button>
+    <div class="quiz-feedback" id="quiz-feedback"></div>
+  </div>
+</section>
+
+<footer>Lycka till på examen · Good luck on the exam</footer>
+
+<script>
+/* =========== DATA =========== */
+const VERBS = [
+  {inf:"att vakna",     nu:"vaknar",    da:"vaknade",   en:"to wake up",            cat:"daily"},
+  {inf:"att stiga upp", nu:"stiger upp",da:"steg upp",  en:"to get up",             cat:"daily"},
+  {inf:"att jobba",     nu:"jobbar",    da:"jobbade",   en:"to work",               cat:"daily"},
+  {inf:"att dricka",    nu:"dricker",   da:"drack",     en:"to drink",              cat:"daily"},
+  {inf:"att duscha",    nu:"duschar",   da:"duschade",  en:"to shower",             cat:"daily"},
+  {inf:"att kamma",     nu:"kammar",    da:"kammade",   en:"to comb",               cat:"daily"},
+  {inf:"att borsta",    nu:"borstar",   da:"borstade",  en:"to brush",              cat:"daily"},
+  {inf:"att klä på sig",nu:"klär på sig",da:"klädde på sig",en:"to get dressed",    cat:"daily"},
+  {inf:"att börja",     nu:"börjar",    da:"började",   en:"to begin / start",      cat:"daily"},
+  {inf:"att skriva",    nu:"skriver",   da:"skrev",     en:"to write",              cat:"daily"},
+  {inf:"att ta",        nu:"tar",       da:"tog",       en:"to take",               cat:"daily"},
+  {inf:"att ringa",     nu:"ringer",    da:"ringde",    en:"to call (phone)",       cat:"daily"},
+  {inf:"att sluta",     nu:"slutar",    da:"slutade",   en:"to stop / finish",      cat:"daily"},
+  {inf:"att handla",    nu:"handlar",   da:"handlade",  en:"to shop (groceries)",   cat:"daily"},
+  {inf:"att köpa",      nu:"köper",     da:"köpte",     en:"to buy",                cat:"daily"},
+  {inf:"att laga",      nu:"lagar",     da:"lagade",    en:"to cook / fix",         cat:"daily"},
+  {inf:"att steka",     nu:"steker",    da:"stekte",    en:"to fry",                cat:"daily"},
+  {inf:"att titta",     nu:"tittar",    da:"tittade",   en:"to watch / look",       cat:"daily"},
+  {inf:"att sova",      nu:"sover",     da:"sov",       en:"to sleep",              cat:"daily"},
+  {inf:"att gå",        nu:"går",       da:"gick",      en:"to go",                 cat:"both"},
+  {inf:"att äta",       nu:"äter",      da:"åt",        en:"to eat",                cat:"both"},
+  {inf:"att ha",        nu:"har",       da:"hade",      en:"to have",               cat:"both"},
+  {inf:"att sitta",     nu:"sitter",    da:"satt",      en:"to sit",                cat:"both"},
+  {inf:"att läsa",      nu:"läser",     da:"läste",     en:"to read",               cat:"both"},
+  {inf:"att ligga",     nu:"ligger",    da:"låg",       en:"to lie / be located",   cat:"library"},
+  {inf:"att kunna",     nu:"kan",       da:"kunde",     en:"to be able to / can",   cat:"library"},
+  {inf:"att låna",      nu:"lånar",     da:"lånade",    en:"to borrow / to lend",   cat:"library"},
+  {inf:"att värma",     nu:"värmer",    da:"värmde",    en:"to warm up",            cat:"library"},
+  {inf:"att kopiera",   nu:"kopierar",  da:"kopierade", en:"to copy",               cat:"library"},
+  {inf:"att skriva ut", nu:"skriver ut",da:"skrev ut",  en:"to print",              cat:"library"},
+  {inf:"att skanna",    nu:"skannar",   da:"skannade",  en:"to scan",               cat:"library"},
+  {inf:"att studera",   nu:"studerar",  da:"studerade", en:"to study",              cat:"library"},
+  {inf:"att använda",   nu:"använder",  da:"använde",   en:"to use",                cat:"library"},
+  {inf:"att sjunga",    nu:"sjunger",   da:"sjöng",     en:"to sing",               cat:"library"},
+  {inf:"att måla",      nu:"målar",     da:"målade",    en:"to paint",              cat:"library"},
+  {inf:"att skaffa",    nu:"skaffar",   da:"skaffade",  en:"to get / obtain",       cat:"library"},
+  {inf:"att lämna",     nu:"lämnar",    da:"lämnade",   en:"to leave / return",     cat:"library"},
+  {inf:"att kosta",     nu:"kostar",    da:"kostade",   en:"to cost",               cat:"library"},
+  {inf:"att missa",     nu:"missar",    da:"missade",   en:"to miss",               cat:"library"},
+  {inf:"att gälla",     nu:"gäller",    da:"gällde",    en:"to apply / be valid",   cat:"library"},
+  {inf:"att måste",     nu:"måste",     da:"var tvungen / måste",en:"must / have to",cat:"library"},
+  {inf:"att finnas",    nu:"finns",     da:"fanns",     en:"to exist / there is",   cat:"library"},
+  {inf:"att besöka",    nu:"besöker",   da:"besökte",   en:"to visit",              cat:"library"},
+];
+
+const EXAMPLES = [
+  {n:"0", verb:"gå",       sv:"Vi gick till skolan idag.",                           en:"We went to school today."},
+  {n:"1", verb:"studera",  sv:"Jag studerade svenska varje lördag.",                 en:"I studied Swedish every Saturday."},
+  {n:"2", verb:"äta",      sv:"Du åt en apelsin.",                                   en:"You ate an orange."},
+  {n:"3", verb:"kunna",    sv:"Du kan besöka din familj.",                           en:"You can visit your family."},
+  {n:"4", verb:"läsa",     sv:"Jag läste Harry Potter, min favoritbok.",             en:"I read Harry Potter, my favorite book."},
+  {n:"5", verb:"måla",     sv:"Jag målar för att slappna av.",                       en:"I paint to relax."},
+  {n:"6", verb:"sitta",    sv:"Jag sitter i åtta timmar på jobbet.",                 en:"I sit for eight hours at work."},
+  {n:"7", verb:"sjunga",   sv:"Jag sjunger opera.",                                  en:"I sing opera."},
+  {n:"8", verb:"sjunga",   sv:"Jag sjöng på teatern.",                               en:"I sang at the theater."},
+  {n:"9", verb:"låna",     sv:"Jag lånade en penna till min vän.",                   en:"I lent a pen to my friend."},
+  {n:"10",verb:"läsa",     sv:"Vi läste en bok på biblioteket.",                     en:"We read a book at the library."},
+  {n:"11",verb:"äta",      sv:"Du åt en utsökt lasagne.",                            en:"You ate a delicious lasagna."},
+  {n:"12",verb:"kopiera",  sv:"Jag kopierade läxan.",                                en:"I copied the homework."},
+  {n:"13",verb:"använda",  sv:"Jag använde min väns dator.",                         en:"I used my friend's computer."},
+  {n:"14",verb:"ha",       sv:"Jag hade ett husdjur som hette Canuto.",              en:"I had a pet named Canuto."},
+];
+
+/* =========== TOPIC-ORGANIZED VOCABULARY DECKS =========== */
+const DECKS = {
+  greetings: [
+    {q:"hej",en:"hi / hello"},{q:"hej då",en:"goodbye"},
+    {q:"god morgon",en:"good morning"},{q:"god kväll",en:"good evening"},
+    {q:"god natt",en:"good night"},{q:"tack",en:"thanks / please"},
+    {q:"tack så mycket",en:"thank you very much"},{q:"varsågod",en:"you're welcome / here you go"},
+    {q:"förlåt",en:"sorry"},{q:"ursäkta",en:"excuse me"},
+    {q:"ja",en:"yes"},{q:"nej",en:"no"},{q:"kanske",en:"maybe"},
+    {q:"hur mår du?",en:"how are you?"},{q:"bra, tack",en:"good, thanks"},
+    {q:"vad heter du?",en:"what's your name?"},{q:"jag heter",en:"my name is"},
+    {q:"trevligt att träffas",en:"nice to meet you"},
+    {q:"jag förstår inte",en:"I don't understand"},
+    {q:"talar du engelska?",en:"do you speak English?"},
+    {q:"jag pratar lite svenska",en:"I speak a little Swedish"},
+    {q:"kan du upprepa?",en:"can you repeat?"},
+    {q:"långsammare, tack",en:"slower, please"},
+  ],
+  food: [
+    {q:"mat",en:"food"},{q:"frukost",en:"breakfast"},{q:"lunch",en:"lunch"},
+    {q:"middag",en:"dinner"},{q:"fika",en:"coffee break"},
+    {q:"kaffe",en:"coffee"},{q:"te",en:"tea"},{q:"vatten",en:"water"},
+    {q:"mjölk",en:"milk"},{q:"öl",en:"beer"},{q:"vin",en:"wine"},
+    {q:"bröd",en:"bread"},{q:"smör",en:"butter"},{q:"ost",en:"cheese"},
+    {q:"kött",en:"meat"},{q:"kyckling",en:"chicken"},{q:"fisk",en:"fish"},
+    {q:"grönsaker",en:"vegetables"},{q:"frukt",en:"fruit"},{q:"äpple",en:"apple"},
+    {q:"socker",en:"sugar"},{q:"salt",en:"salt"},
+    {q:"smakligt",en:"enjoy your meal"},{q:"notan, tack",en:"the bill, please"},
+    {q:"bordsbokning",en:"table reservation"},{q:"meny",en:"menu"},
+  ],
+  shopping: [
+    {q:"affär",en:"shop / store"},{q:"mataffär",en:"grocery store"},
+    {q:"apotek",en:"pharmacy"},{q:"systembolaget",en:"state alcohol store"},
+    {q:"pengar",en:"money"},{q:"kronor",en:"Swedish kronor"},
+    {q:"kontant",en:"cash"},{q:"kort",en:"card"},
+    {q:"Swish",en:"Swedish mobile payment"},{q:"kvitto",en:"receipt"},
+    {q:"rea",en:"sale"},{q:"rabatt",en:"discount"},{q:"pris",en:"price"},
+    {q:"dyr",en:"expensive"},{q:"billig",en:"cheap"},
+    {q:"öppet",en:"open"},{q:"stängt",en:"closed"},
+    {q:"Vad kostar det?",en:"How much is it?"},
+    {q:"Har ni",en:"Do you have"},{q:"Jag tar den",en:"I'll take it"},
+    {q:"en påse",en:"a bag"},
+  ],
+  transport: [
+    {q:"buss",en:"bus"},{q:"tunnelbana",en:"metro"},{q:"tåg",en:"train"},
+    {q:"spårvagn",en:"tram"},{q:"bil",en:"car"},{q:"cykel",en:"bicycle"},
+    {q:"flygplats",en:"airport"},{q:"station",en:"station"},
+    {q:"hållplats",en:"bus stop"},{q:"biljett",en:"ticket"},
+    {q:"SL-kort",en:"Stockholm transit card"},
+    {q:"höger",en:"right"},{q:"vänster",en:"left"},{q:"rakt fram",en:"straight ahead"},
+    {q:"nära",en:"near"},{q:"långt",en:"far"},{q:"här",en:"here"},{q:"där",en:"there"},
+    {q:"gata",en:"street"},{q:"torg",en:"square / plaza"},
+    {q:"Var ligger",en:"Where is"},
+    {q:"Hur kommer jag till",en:"How do I get to"},
+  ],
+  home: [
+    {q:"hem",en:"home"},{q:"lägenhet",en:"apartment"},{q:"hus",en:"house"},
+    {q:"rum",en:"room"},{q:"kök",en:"kitchen"},{q:"badrum",en:"bathroom"},
+    {q:"sovrum",en:"bedroom"},{q:"vardagsrum",en:"living room"},
+    {q:"våning",en:"floor / story"},{q:"hiss",en:"elevator"},{q:"trappa",en:"stairs"},
+    {q:"nyckel",en:"key"},{q:"dörr",en:"door"},{q:"fönster",en:"window"},
+    {q:"säng",en:"bed"},{q:"bord",en:"table"},{q:"stol",en:"chair"},
+    {q:"hyra",en:"to rent"},{q:"hyresvärd",en:"landlord"},{q:"granne",en:"neighbor"},
+    {q:"sopor",en:"trash"},{q:"återvinning",en:"recycling"},
+  ],
+  time: [
+    {q:"idag",en:"today"},{q:"imorgon",en:"tomorrow"},{q:"igår",en:"yesterday"},
+    {q:"nu",en:"now"},{q:"sedan",en:"then / since"},
+    {q:"morgon",en:"morning"},{q:"kväll",en:"evening"},{q:"natt",en:"night"},
+    {q:"vecka",en:"week"},{q:"månad",en:"month"},{q:"år",en:"year"},
+    {q:"måndag",en:"Monday"},{q:"tisdag",en:"Tuesday"},{q:"onsdag",en:"Wednesday"},
+    {q:"torsdag",en:"Thursday"},{q:"fredag",en:"Friday"},{q:"lördag",en:"Saturday"},
+    {q:"söndag",en:"Sunday"},
+    {q:"januari",en:"January"},{q:"februari",en:"February"},{q:"mars",en:"March"},
+    {q:"april",en:"April"},{q:"maj",en:"May"},{q:"juni",en:"June"},{q:"juli",en:"July"},
+    {q:"augusti",en:"August"},{q:"september",en:"September"},{q:"oktober",en:"October"},
+    {q:"november",en:"November"},{q:"december",en:"December"},
+    {q:"hur dags?",en:"at what time?"},{q:"klockan är",en:"the time is"},
+  ],
+  people: [
+    {q:"familj",en:"family"},{q:"mamma",en:"mom"},{q:"pappa",en:"dad"},
+    {q:"syster",en:"sister"},{q:"bror",en:"brother"},{q:"barn",en:"child / children"},
+    {q:"son",en:"son"},{q:"dotter",en:"daughter"},
+    {q:"man",en:"husband / man"},{q:"fru",en:"wife"},
+    {q:"pojkvän",en:"boyfriend"},{q:"flickvän",en:"girlfriend"},
+    {q:"vän",en:"friend"},{q:"kompis",en:"buddy"},{q:"kollega",en:"colleague"},
+    {q:"pojke",en:"boy"},{q:"flicka",en:"girl"},{q:"kvinna",en:"woman"},
+    {q:"mormor",en:"grandma (mother's side)"},{q:"farmor",en:"grandma (father's side)"},
+    {q:"morfar",en:"grandpa (mother's side)"},{q:"farfar",en:"grandpa (father's side)"},
+  ],
+  health: [
+    {q:"sjuk",en:"sick"},{q:"frisk",en:"healthy"},{q:"ont",en:"hurt / pain"},
+    {q:"huvud",en:"head"},{q:"mage",en:"stomach"},{q:"rygg",en:"back"},
+    {q:"feber",en:"fever"},{q:"förkyld",en:"having a cold"},
+    {q:"läkare",en:"doctor"},{q:"sjukhus",en:"hospital"},
+    {q:"vårdcentral",en:"health clinic"},{q:"medicin",en:"medicine"},
+    {q:"akut",en:"urgent / emergency"},{q:"ambulans",en:"ambulance"},
+    {q:"polis",en:"police"},{q:"brandkår",en:"fire service"},
+    {q:"Hjälp!",en:"Help!"},{q:"Ring ambulansen!",en:"Call an ambulance!"},
+  ],
+  laundry: [
+    {q:"tvätta",en:"to wash (laundry)"},{q:"tvättstugan",en:"the laundry room"},
+    {q:"tvättmaskin",en:"washing machine"},{q:"boka",en:"to book / reserve"},
+    {q:"bokat",en:"booked (past participle)"},{q:"slipsar",en:"ties"},
+    {q:"byxorna",en:"the trousers"},{q:"choklad",en:"chocolate"},
+    {q:"behöva",en:"to need"},{q:"hjälpa",en:"to help"},
+    {q:"bjuda (på)",en:"to offer / treat to"},{q:"bjöd",en:"offered (past)"},
+    {q:"fick",en:"got (past of få)"},{q:"upptagen",en:"busy / occupied"},
+    {q:"ska",en:"will / going to"},
+  ],
+  library: [
+    {q:"vuxna",en:"adults"},{q:"barn",en:"children"},{q:"måla",en:"to paint"},
+    {q:"använda",en:"to use"},{q:"låna",en:"to borrow / to lend"},{q:"sjunga",en:"to sing"},
+    {q:"skriva ut",en:"to print"},{q:"skanna",en:"to scan"},{q:"kopiera",en:"to copy"},
+    {q:"studera",en:"to study"},{q:"bibliotekskort",en:"library card"},
+    {q:"gratis",en:"free (of charge)"},{q:"åt gången",en:"at a time"},
+    {q:"skaffa",en:"to get / obtain"},{q:"gälla",en:"to apply / be valid"},
+    {q:"kosta",en:"to cost"},{q:"lämna tillbaka",en:"to return"},
+    {q:"missa",en:"to miss"},{q:"finns",en:"there is / there are"},
+    {q:"besöka",en:"to visit"},
+  ],
+  easter: [
+    {q:"skärtorsdag",en:"Maundy Thursday (Torsdag)"},
+    {q:"långfredag",en:"Good Friday (Fredag)"},
+    {q:"påskafton",en:"Easter Eve / Saturday (Lördag)"},
+    {q:"påskdagen",en:"Easter Sunday (Söndag)"},
+    {q:"annandag påsk",en:"Easter Monday (Måndag)"},
+    {q:"pynta",en:"to decorate"},{q:"klä ut",en:"to dress up"},
+    {q:"gömma",en:"to hide"},{q:"påskägg",en:"easter egg"},
+    {q:"käring",en:"old hag / rude word"},
+  ],
+  lappen: [
+    {q:"sluta",en:"to stop / quit"},{q:"skrivit",en:"written (past participle)"},
+    {q:"lappen",en:"the note"},{q:"säkert",en:"surely / for sure"},
+    {q:"vadå",en:"what? (colloquial)"},{q:"absolut inte",en:"absolutely not"},
+    {q:"dörren",en:"the door"},{q:"typiskt",en:"typical"},
+  ],
+};
+
+/* Combined legacy vocab deck for Quiz mode (English → Svenska) */
+const VOCAB_DECK = Object.values(DECKS).flat();
+
+/* =========== LUCKTEXT DIALOGUES =========== */
+/* Format: use [BLANK|answer1|answer2] for blanks. Case-insensitive checking. */
+const LUCKTEXTS = {
+  tvattstugan: {
+    title: "Grannar – Avsnitt 4: Tvättstugan",
+    lines: [
+      {s:"Valentina", c:"val", t:"Åh nej. Vi måste tvätta. Carmen!"},
+      {s:"Valentina", c:"val", t:"Jag kan tvätta. Jag [ser] inte Carmen."},
+      {s:"Valentina", c:"val", t:"Jag går till tvättstugan, jag går till tvättstugan ..."},
+      {s:"Torsten",   c:"tor", t:"Vad ska du [göra]?"},
+      {s:"Valentina", c:"val", t:"Jag ska tvätta."},
+      {s:"Torsten",   c:"tor", t:"Du måste [boka] boka!"},
+      {s:"Valentina", c:"val", t:"Boka?"},
+      {s:"Torsten",   c:"tor", t:"Vilken dag är det idag?"},
+      {s:"Valentina", c:"val", t:"Tisdag ... Den [tredje] maj."},
+      {s:"Torsten",   c:"tor", t:"Vilken tid vill du tvätta?"},
+      {s:"Valentina", c:"val", t:"Nu. Klockan tio."},
+      {s:"Torsten",   c:"tor", t:"Det går inte! Tiden är [upptagen|bokad]! Jag har bokat den. Jag ska tvätta mina slipsar."},
+      {s:"Valentina", c:"val", t:"Men jag måste tvätta. Titta, jag fick choklad på [byxorna]."},
+      {s:"Torsten",   c:"tor", t:"Äter du choklad? På en tisdag?"},
+      {s:"Valentina", c:"val", t:"Ja! Vill du [ha]?"},
+      {s:"Torsten",   c:"tor", t:"Okej. [Tack så mycket|Ja tack]."},
+      {s:"Torsten",   c:"tor", t:"[God|Mmm] choklad."},
+      {s:"Valentina", c:"val", t:"Mm. Hur många tvättmaskiner är det?"},
+      {s:"Torsten",   c:"tor", t:"Tre."},
+      {s:"Valentina", c:"val", t:"Behöver du tre tvättmaskiner [för|till] dina slipsar?"},
+      {s:"Torsten",   c:"tor", t:"Hmmm ... Nej. Okej. Du kan [ta|boka|använda] en tvättmaskin."},
+      {s:"Valentina", c:"val", t:"Tack."},
+      {s:"Carmen",    c:"car", t:"Vad gör du?"},
+      {s:"Valentina", c:"val", t:"Jag ska tvätta byxorna. Torsten hjälper mig."},
+      {s:"Carmen",    c:"car", t:"Torsten? Han [vill] inte hjälpa folk. Varför hjälper Torsten dig?"},
+      {s:"Valentina", c:"val", t:"Jag bjöd honom på choklad! Han [blev|var] glad. Så ... nu hjälper han mig."},
+      {s:"Carmen",    c:"car", t:"Varför ska du tvätta?"},
+      {s:"Valentina", c:"val", t:"Jag [fick] choklad på byxorna."},
+      {s:"Carmen",    c:"car", t:"Så ... Choklad var ditt problem. Men chokladen hjälpte dig också."},
+      {s:"Valentina", c:"val", t:"[Ja|Precis|Sant]!"},
+    ]
+  },
+  lappen: {
+    title: "Grannar – Avsnitt 3: Lappen",
+    lines: [
+      {s:"Carmen",    c:"car", t:"Sluta. Sluta vadå?"},
+      {s:"Carmen",    c:"car", t:"Hej Florence ... Har du [skrivit] den här lappen?"},
+      {s:"Florence",  c:"flo", t:"Vilken lapp?"},
+      {s:"Carmen",    c:"car", t:"Lappen på dörren."},
+      {s:"Florence",  c:"flo", t:"Sluta. [Vem] ska sluta? Vem har skrivit den?"},
+      {s:"Carmen",    c:"car", t:"Jag tror Torsten."},
+      {s:"Florence",  c:"flo", t:"Det är [säkert] Torsten."},
+      {s:"Carmen",    c:"car", t:"Typiskt Torsten."},
+      {s:"Carmen och Florence", c:"car", t:"Torsten!"},
+      {s:"Carmen",    c:"car", t:"Har du skrivit den här lappen?"},
+      {s:"Torsten",   c:"tor", t:"Vilken lapp? Sluta. [Vadå] sluta? Vem ska sluta? Och vad ska de sluta [med]?"},
+      {s:"Florence",  c:"flo", t:"Så du har inte skrivit den?"},
+      {s:"Torsten",   c:"tor", t:"Nej! [Absolut] inte!"},
+      {s:"Florence",  c:"flo", t:"Erik!"},
+      {s:"Eriks röst",c:"eri", t:"Ja?"},
+      {s:"Florence",  c:"flo", t:"Har du skrivit en lapp på [dörren]?"},
+      {s:"Erik",      c:"eri", t:"Vadå [för] lapp?"},
+      {s:"Florence",  c:"flo", t:"Så du har inte skrivit den?"},
+      {s:"Erik",      c:"eri", t:"Nej!"},
+    ]
+  }
+};
+
+/* =========== NUMBERS =========== */
+const NUMBERS = [
+  {n:1,  card:"ett / en",    ord:"första",   date:"den första"},
+  {n:2,  card:"två",         ord:"andra",    date:"den andra"},
+  {n:3,  card:"tre",         ord:"tredje",   date:"den tredje"},
+  {n:4,  card:"fyra",        ord:"fjärde",   date:"den fjärde"},
+  {n:5,  card:"fem",         ord:"femte",    date:"den femte"},
+  {n:6,  card:"sex",         ord:"sjätte",   date:"den sjätte"},
+  {n:7,  card:"sju",         ord:"sjunde",   date:"den sjunde"},
+  {n:8,  card:"åtta",        ord:"åttonde",  date:"den åttonde"},
+  {n:9,  card:"nio",         ord:"nionde",   date:"den nionde"},
+  {n:10, card:"tio",         ord:"tionde",   date:"den tionde"},
+  {n:11, card:"elva",        ord:"elfte",    date:"den elfte"},
+  {n:12, card:"tolv",        ord:"tolfte",   date:"den tolfte"},
+  {n:13, card:"tretton",     ord:"trettonde",date:"den trettonde"},
+  {n:14, card:"fjorton",     ord:"fjortonde",date:"den fjortonde"},
+  {n:15, card:"femton",      ord:"femtonde", date:"den femtonde"},
+  {n:16, card:"sexton",      ord:"sextonde", date:"den sextonde"},
+  {n:17, card:"sjutton",     ord:"sjuttonde",date:"den sjuttonde"},
+  {n:18, card:"arton",       ord:"artonde",  date:"den artonde"},
+  {n:19, card:"nitton",      ord:"nittonde", date:"den nittonde"},
+  {n:20, card:"tjugo",       ord:"tjugonde", date:"den tjugonde"},
+  {n:21, card:"tjugoett",    ord:"tjugoförsta",date:"den tjugoförsta"},
+  {n:22, card:"tjugotvå",    ord:"tjugoandra",date:"den tjugoandra"},
+  {n:23, card:"tjugotre",    ord:"tjugotredje",date:"den tjugotredje"},
+  {n:24, card:"tjugofyra",   ord:"tjugofjärde",date:"den tjugofjärde"},
+  {n:25, card:"tjugofem",    ord:"tjugofemte",date:"den tjugofemte"},
+  {n:26, card:"tjugosex",    ord:"tjugosjätte",date:"den tjugosjätte"},
+  {n:27, card:"tjugosju",    ord:"tjugosjunde",date:"den tjugosjunde"},
+  {n:28, card:"tjugoåtta",   ord:"tjugoåttonde",date:"den tjugoåttonde"},
+  {n:29, card:"tjugonio",    ord:"tjugonionde",date:"den tjugonionde"},
+  {n:30, card:"trettio",     ord:"trettionde",date:"den trettionde"},
+  {n:31, card:"trettioett",  ord:"trettioförsta",date:"den trettioförsta"},
+];
+const numRows = document.getElementById("number-rows");
+NUMBERS.forEach(num=>{
+  const r = document.createElement("div");
+  r.className = "tbl-row";
+  r.style.gridTemplateColumns = "48px 1fr 1fr 1.2fr";
+  r.innerHTML = `
+    <div style="font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--secondary-text);font-weight:500">${num.n}</div>
+    <div style="font-weight:600">${num.card}</div>
+    <div style="color:var(--text)">${num.ord}</div>
+    <div style="font-size:13px;color:var(--secondary-text);font-style:italic">${num.date}</div>`;
+  numRows.appendChild(r);
+});
+
+/* =========== TABS =========== */
+document.querySelectorAll("nav.tabs button").forEach(b=>{
+  b.addEventListener("click",()=>{
+    document.querySelectorAll("nav.tabs button").forEach(x=>x.classList.remove("active"));
+    document.querySelectorAll(".panel").forEach(x=>x.classList.remove("active"));
+    b.classList.add("active");
+    document.getElementById("panel-"+b.dataset.tab).classList.add("active");
+  });
+});
+
+/* =========== English conjugation helpers =========== */
+function presentEn(en){
+  return en.split("/").map(part=>{
+    const p = part.trim();
+    if(p.startsWith("to ")){
+      const rest = p.slice(3);
+      const words = rest.split(" ");
+      const first = words[0];
+      let conj;
+      if(first.endsWith("y") && !/[aeiou]y$/.test(first)) conj = first.slice(0,-1)+"ies";
+      else if(/(s|sh|ch|x|z|o)$/.test(first)) conj = first+"es";
+      else conj = first+"s";
+      return [conj,...words.slice(1)].join(" ");
+    }
+    return p;
+  }).join(" / ");
+}
+function pastEn(en){
+  const IRREG = {
+    "to go":"went","to eat":"ate","to drink":"drank","to have":"had","to take":"took",
+    "to buy":"bought","to sit":"sat","to sleep":"slept","to read":"read","to write":"wrote",
+    "to be able to":"was able to","to get up":"got up","to leave":"left","to sing":"sang",
+    "to fry":"fried","to cost":"cost"
+  };
+  return en.split("/").map(part=>{
+    const p = part.trim();
+    if(IRREG[p]) return IRREG[p];
+    if(p==="can") return "could";
+    if(p==="must"||p==="have to") return "had to";
+    if(p.startsWith("to ")){
+      const rest = p.slice(3);
+      const words = rest.split(" ");
+      const first = words[0];
+      if(IRREG["to "+first]) return [IRREG["to "+first],...words.slice(1)].join(" ");
+      let past;
+      if(first.endsWith("e")) past = first+"d";
+      else if(first.endsWith("y") && !/[aeiou]y$/.test(first)) past = first.slice(0,-1)+"ied";
+      else past = first+"ed";
+      return [past,...words.slice(1)].join(" ");
+    }
+    return p;
+  }).join(" / ");
+}
+
+/* =========== MODAL VERBS (special, no -r in present) =========== */
+const MODAL_VERBS = [
+  {inf:"att kunna",  nu:"kan",    da:"kunde",              en:"to be able to / can"},
+  {inf:"att skola",  nu:"ska",    da:"skulle",             en:"will / going to"},
+  {inf:"att vilja",  nu:"vill",   da:"ville",              en:"to want to"},
+  {inf:"att få",     nu:"får",    da:"fick",               en:"may / to be allowed to"},
+  {inf:"att måste",  nu:"måste",  da:"var tvungen / måste",en:"must / have to"},
+  {inf:"att behöva", nu:"behöver",da:"behövde",            en:"to need to"},
+];
+const modalRows = document.getElementById("modal-verb-rows");
+MODAL_VERBS.forEach(v=>{
+  const r = document.createElement("div");
+  r.className = "tbl-row";
+  r.innerHTML = `
+    <div class="inf">${v.inf}<span class="en">${v.en}</span></div>
+    <div>${v.nu}<span class="en">${presentEn(v.en)}</span></div>
+    <div class="da">${v.da}<span class="en">${pastEn(v.en)}</span></div>`;
+  modalRows.appendChild(r);
+});
+
+/* =========== VERB TABLE =========== */
+const verbRows = document.getElementById("verb-rows");
+VERBS.forEach((v,i)=>{
+  const r = document.createElement("div");
+  r.className = "tbl-row";
+  r.dataset.cat = v.cat;
+  r.innerHTML = `
+    <div class="inf">${v.inf}<span class="en">${v.en}</span></div>
+    <div>${v.nu}<span class="en">${presentEn(v.en)}</span></div>
+    <div class="da">${v.da}<span class="en">${pastEn(v.en)}</span></div>`;
+  verbRows.appendChild(r);
+});
+document.querySelectorAll("#verb-filter .chip").forEach(b=>{
+  b.addEventListener("click",()=>{
+    document.querySelectorAll("#verb-filter .chip").forEach(x=>x.classList.remove("active"));
+    b.classList.add("active");
+    const cat = b.dataset.cat;
+    // Scope filter to regular verb rows only, not the modal table
+    verbRows.querySelectorAll(".tbl-row").forEach(r=>{
+      if(cat==="all") r.classList.remove("hide");
+      else if(cat==="daily") r.classList.toggle("hide", !(r.dataset.cat==="daily" || r.dataset.cat==="both"));
+      else if(cat==="library") r.classList.toggle("hide", !(r.dataset.cat==="library" || r.dataset.cat==="both"));
+    });
+  });
+});
+
+/* =========== EXAMPLES =========== */
+const exBox = document.getElementById("examples");
+EXAMPLES.forEach(e=>{
+  const d = document.createElement("div");
+  d.className = "example";
+  d.innerHTML = `<span class="num">${e.n}</span><span class="verb-tag">${e.verb}</span><span class="sv">${e.sv}</span><span class="en-trans">${e.en}</span>`;
+  exBox.appendChild(d);
+});
+
+/* =========== FLASHCARDS =========== */
+let currentDeck = "all";
+let cardIdx = 0;
+const card = document.getElementById("card");
+const frontEl = document.getElementById("card-front");
+const backEl = document.getElementById("card-back");
+const frontExtra = document.getElementById("card-front-extra");
+const backExtra = document.getElementById("card-back-extra");
+const counterEl = document.getElementById("card-counter");
+
+/* Returns {deck, type} where type controls how the card face is rendered */
+function getCurrentDeck(){
+  const key = currentDeck;
+  if(key==="all"){
+    // combine all verb cards + all vocab cards into a single deck
+    const verbCards = VERBS.map(v=>({_t:"verb",...v}));
+    const vocabCards = Object.values(DECKS).flat().map(v=>({_t:"vocab",...v}));
+    const numberCards = NUMBERS.map(n=>({_t:"number",...n}));
+    const ordinalCards = NUMBERS.map(n=>({_t:"ordinal",...n}));
+    return {deck:[...verbCards,...vocabCards,...numberCards,...ordinalCards], type:"mixed"};
+  }
+  if(key==="verbs-all")     return {deck:VERBS, type:"verb"};
+  if(key==="verbs-daily")   return {deck:VERBS.filter(v=>v.cat==="daily" || v.cat==="both"), type:"verb"};
+  if(key==="verbs-library") return {deck:VERBS.filter(v=>v.cat==="library" || v.cat==="both"), type:"verb"};
+  if(key==="verbs-modal")   return {deck:MODAL_VERBS, type:"verb"};
+  if(key==="numbers")       return {deck:NUMBERS, type:"number"};
+  if(key==="ordinals")      return {deck:NUMBERS, type:"ordinal"};
+  if(DECKS[key])            return {deck:DECKS[key], type:"vocab"};
+  return {deck:VERBS, type:"verb"};
+}
+
+function renderCard(){
+  card.classList.remove("flipped");
+  const {deck, type} = getCurrentDeck();
+  if(!deck.length){
+    frontEl.textContent = "—";
+    backEl.textContent = "—";
+    frontExtra.textContent = "";
+    backExtra.textContent = "";
+    counterEl.textContent = "0 / 0";
+    return;
+  }
+  if(cardIdx >= deck.length) cardIdx = 0;
+  const v = deck[cardIdx];
+  let front, back, fe, be;
+
+  // For mixed "all" deck, each card carries its own _t type
+  const effectiveType = type==="mixed" ? v._t : type;
+
+  if(effectiveType==="verb"){
+    front = v.inf; back = v.da;
+    fe = "What's the past tense?";
+    be = `nu: ${v.nu} · ${v.en}`;
+  } else if(effectiveType==="vocab"){
+    front = v.q; back = v.en;
+    fe = "Translate to English"; be = "";
+  } else if(effectiveType==="number"){
+    front = String(v.n); back = v.card;
+    fe = "How do you say this number?";
+    be = `ordinal: ${v.ord}`;
+  } else if(effectiveType==="ordinal"){
+    front = `${v.n}${v.n===1?"st":v.n===2?"nd":v.n===3?"rd":"th"}`;
+    back = v.ord;
+    fe = "What's the ordinal (position)?";
+    be = `date form: ${v.date}`;
+  }
+  frontEl.textContent = front;
+  backEl.textContent = back;
+  frontExtra.textContent = fe;
+  backExtra.textContent = be;
+  counterEl.textContent = `${cardIdx+1} / ${deck.length}`;
+}
+card.addEventListener("click",()=>card.classList.toggle("flipped"));
+document.getElementById("next-card").addEventListener("click",(e)=>{
+  e.stopPropagation();
+  const {deck} = getCurrentDeck();
+  cardIdx = (cardIdx+1) % deck.length;
+  renderCard();
+});
+document.getElementById("prev-card").addEventListener("click",(e)=>{
+  e.stopPropagation();
+  const {deck} = getCurrentDeck();
+  cardIdx = (cardIdx-1+deck.length) % deck.length;
+  renderCard();
+});
+document.querySelectorAll("#deck-picker .chip").forEach(b=>{
+  b.addEventListener("click",()=>{
+    document.querySelectorAll("#deck-picker .chip").forEach(x=>x.classList.remove("active"));
+    b.classList.add("active");
+    currentDeck = b.dataset.deck;
+    cardIdx = 0;
+    renderCard();
+  });
+});
+renderCard();
+
+/* =========== LUCKTEXT =========== */
+let currentLT = "tvattstugan";
+const ltBody = document.getElementById("lucktext-body");
+
+function normalize(s){
+  return s.toLowerCase().trim().replace(/\s+/g," ").replace(/[.,!?]/g,"");
+}
+
+function renderLucktext(key){
+  const lt = LUCKTEXTS[key];
+  ltBody.innerHTML = "";
+  document.getElementById("lt-score").classList.remove("show");
+
+  const wrap = document.createElement("div");
+  wrap.className = "dialogue";
+  lt.lines.forEach((line,li)=>{
+    const row = document.createElement("div");
+    row.className = "line";
+    const speaker = document.createElement("div");
+    speaker.className = `speaker c-${line.c}`;
+    speaker.textContent = line.s + ":";
+    const text = document.createElement("div");
+    text.className = "line-text";
+
+    // Parse [answer|alt1|alt2] as blanks
+    const parts = line.t.split(/(\[[^\]]+\])/g);
+    parts.forEach(part=>{
+      if(part.startsWith("[") && part.endsWith("]")){
+        const answers = part.slice(1,-1).split("|");
+        const input = document.createElement("input");
+        input.type = "text";
+        input.className = "blank-input";
+        input.autocapitalize = "off";
+        input.autocomplete = "off";
+        input.spellcheck = false;
+        input.dataset.answers = JSON.stringify(answers);
+        input.placeholder = "___";
+        // size by primary answer length
+        const w = Math.max(8, answers[0].length + 2);
+        input.style.minWidth = (w*8) + "px";
+        text.appendChild(input);
+      } else {
+        text.appendChild(document.createTextNode(part));
+      }
+    });
+    row.appendChild(speaker);
+    row.appendChild(text);
+    wrap.appendChild(row);
+  });
+  ltBody.appendChild(wrap);
+}
+
+function checkLucktext(){
+  const inputs = ltBody.querySelectorAll(".blank-input");
+  let correct = 0, total = inputs.length;
+  inputs.forEach(i=>{
+    i.classList.remove("ok","err","reveal");
+    const answers = JSON.parse(i.dataset.answers).map(normalize);
+    const given = normalize(i.value);
+    if(!given){ return; }
+    if(answers.includes(given)){
+      i.classList.add("ok");
+      correct++;
+    } else {
+      i.classList.add("err");
+    }
+  });
+  const scoreEl = document.getElementById("lt-score");
+  scoreEl.innerHTML = `Score: <strong>${correct} / ${total}</strong> correct`;
+  scoreEl.classList.add("show");
+}
+
+function revealLucktext(){
+  const inputs = ltBody.querySelectorAll(".blank-input");
+  inputs.forEach(i=>{
+    const answers = JSON.parse(i.dataset.answers);
+    i.value = answers[0];
+    i.classList.remove("ok","err");
+    i.classList.add("reveal");
+  });
+}
+
+function resetLucktext(){
+  const inputs = ltBody.querySelectorAll(".blank-input");
+  inputs.forEach(i=>{
+    i.value = "";
+    i.classList.remove("ok","err","reveal");
+  });
+  document.getElementById("lt-score").classList.remove("show");
+}
+
+document.querySelectorAll("#lucktext-picker .chip").forEach(b=>{
+  b.addEventListener("click",()=>{
+    document.querySelectorAll("#lucktext-picker .chip").forEach(x=>x.classList.remove("active"));
+    b.classList.add("active");
+    currentLT = b.dataset.lt;
+    renderLucktext(currentLT);
+  });
+});
+document.getElementById("lt-check").addEventListener("click",checkLucktext);
+document.getElementById("lt-reveal").addEventListener("click",revealLucktext);
+document.getElementById("lt-reset").addEventListener("click",resetLucktext);
+renderLucktext(currentLT);
+
+/* =========== QUIZ =========== */
+let qMode = "inf2da";
+let qIdx = 0, score = 0, attempts = 0;
+let qOrder = [];
+
+function buildQOrder(){
+  let source;
+  if(qMode==="inf2da" || qMode==="inf2nu") source = VERBS.map((v,i)=>i);
+  else source = VOCAB_DECK.map((v,i)=>i);
+  qOrder = source.slice().sort(()=>Math.random()-0.5);
+  qIdx = 0;
+}
+function renderQuiz(){
+  const labelEl = document.getElementById("quiz-q-label");
+  const targetEl = document.getElementById("quiz-target");
+  const input = document.getElementById("quiz-input");
+  const fb = document.getElementById("quiz-feedback");
+  fb.classList.remove("show","ok","bad");
+  input.classList.remove("err");
+  input.value = "";
+  input.focus();
+  const i = qOrder[qIdx];
+  if(qMode==="inf2da"){
+    const v = VERBS[i];
+    labelEl.textContent = "Write the past (då) form of:";
+    targetEl.textContent = v.inf;
+  } else if(qMode==="inf2nu"){
+    const v = VERBS[i];
+    labelEl.textContent = "Write the present (nu) form of:";
+    targetEl.textContent = v.inf;
+  } else {
+    const v = VOCAB_DECK[i];
+    labelEl.textContent = "Translate to Swedish:";
+    targetEl.textContent = v.en;
+  }
+  document.getElementById("quiz-score").textContent = `Correct: ${score} / ${attempts}`;
+}
+function checkAnswer(){
+  const input = document.getElementById("quiz-input");
+  const fb = document.getElementById("quiz-feedback");
+  const i = qOrder[qIdx];
+  let correct, given = normalize(input.value);
+  if(!given){return}
+  if(qMode==="inf2da"){ correct = VERBS[i].da; }
+  else if(qMode==="inf2nu"){ correct = VERBS[i].nu; }
+  else { correct = VOCAB_DECK[i].q; }
+  const options = correct.split("/").map(x=>normalize(x));
+  attempts++;
+  if(options.includes(given)){
+    score++;
+    fb.textContent = "✓ Correct";
+    fb.className = "quiz-feedback show ok";
+    input.classList.remove("err");
+    setTimeout(()=>{
+      qIdx = (qIdx+1) % qOrder.length;
+      if(qIdx===0) buildQOrder();
+      renderQuiz();
+    },700);
+  } else {
+    fb.innerHTML = `✗ Correct answer: <strong>${correct}</strong>`;
+    fb.className = "quiz-feedback show bad";
+    input.classList.add("err");
+    document.getElementById("quiz-score").textContent = `Correct: ${score} / ${attempts}`;
+  }
+}
+document.getElementById("quiz-btn").addEventListener("click",()=>{
+  const fb = document.getElementById("quiz-feedback");
+  if(fb.classList.contains("bad")){
+    qIdx = (qIdx+1) % qOrder.length;
+    if(qIdx===0) buildQOrder();
+    renderQuiz();
+  } else {
+    checkAnswer();
+  }
+});
+document.getElementById("quiz-input").addEventListener("keydown",e=>{
+  if(e.key==="Enter"){ e.preventDefault(); document.getElementById("quiz-btn").click(); }
+});
+document.querySelectorAll("#quiz-mode .chip").forEach(b=>{
+  b.addEventListener("click",()=>{
+    document.querySelectorAll("#quiz-mode .chip").forEach(x=>x.classList.remove("active"));
+    b.classList.add("active");
+    qMode = b.dataset.qmode;
+    score = 0; attempts = 0;
+    buildQOrder();
+    renderQuiz();
+  });
+});
+buildQOrder();
+renderQuiz();
+</script>
+</body>
+</html>
