@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Svenska D3 — Study Guide</title>
+<title>Svenska D3</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -11,421 +11,71 @@
   :root {
     --white: #FFFFFF;
     --near-white: #F9FAFB;
-    --light-gray: #F3F4F6;
     --border: #E5E7EB;
-    --muted-text: #9CA3AF;
     --secondary-text: #6B7280;
-    --label-text: #374151;
     --text: #111827;
     --sky: #8CE4FF;
     --sky-tint: #E8F9FF;
     --sky-dark: #6EDAF7;
-    --yellow: #FEEE91;
-    --yellow-tint: #FFFDE8;
-    --orange: #FFA239;
-    --orange-tint: #FFF3E0;
-    --coral: #FF5656;
-    --coral-tint: #FFE8E8;
     --shadow-lifted: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
-    --shadow-raised: 0 4px 12px rgba(0,0,0,0.08), 0 2px 4px rgba(0,0,0,0.05);
   }
 
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
   html, body {
+    height: 100%;
     background: var(--white);
     color: var(--text);
     font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
     font-size: 16px;
     line-height: 1.6;
     -webkit-font-smoothing: antialiased;
-    text-rendering: optimizeLegibility;
   }
 
-  .page {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 0 24px;
-  }
-
-  /* Nav */
-  nav {
-    position: sticky;
-    top: 0;
-    background: var(--white);
-    border-bottom: 1px solid var(--border);
-    z-index: 10;
-    backdrop-filter: blur(8px);
-  }
-  .nav-inner {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 0 24px;
-    height: 56px;
+  body {
     display: flex;
+    flex-direction: column;
     align-items: center;
-    justify-content: space-between;
-  }
-  .nav-brand {
-    font-size: 17px;
-    font-weight: 600;
-    color: var(--text);
-    text-decoration: none;
-  }
-  .nav-brand span {
-    display: inline-block;
-    background: var(--sky-tint);
-    color: var(--text);
-    font-size: 11px;
-    font-weight: 500;
-    padding: 2px 8px;
-    border-radius: 999px;
-    margin-left: 8px;
-    vertical-align: middle;
-  }
-  .nav-cta {
-    display: inline-flex;
-    align-items: center;
-    background: var(--sky);
-    color: var(--text);
-    font-family: inherit;
-    font-size: 14px;
-    font-weight: 500;
-    padding: 8px 18px;
-    border-radius: 8px;
-    border: none;
-    cursor: pointer;
-    text-decoration: none;
-    transition: background 0.15s ease;
-  }
-  .nav-cta:hover { background: var(--sky-dark); }
-  .nav-cta:focus-visible { outline: 2px solid var(--sky); outline-offset: 2px; }
-
-  /* Hero */
-  .hero {
-    padding: 80px 0 72px;
-    text-align: center;
-  }
-  .kicker {
-    display: inline-block;
-    font-size: 12px;
-    font-weight: 500;
-    letter-spacing: 0.08em;
-    color: var(--secondary-text);
-    text-transform: uppercase;
-    margin-bottom: 20px;
-  }
-  .hero h1 {
-    font-size: clamp(36px, 6vw, 56px);
-    font-weight: 700;
-    line-height: 1.1;
-    letter-spacing: -0.02em;
-    color: var(--text);
-    margin-bottom: 20px;
-  }
-  .hero h1 em {
-    font-style: normal;
-    background: var(--sky-tint);
-    border-radius: 6px;
-    padding: 0 6px;
-  }
-  .hero p {
-    font-size: 18px;
-    color: var(--secondary-text);
-    max-width: 520px;
-    margin: 0 auto 40px;
-    line-height: 1.6;
-  }
-  .hero-actions {
-    display: flex;
-    gap: 12px;
     justify-content: center;
-    flex-wrap: wrap;
+    min-height: 100vh;
+    padding: 24px;
   }
-  .btn-primary {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    background: var(--sky);
-    color: var(--text);
-    font-family: inherit;
-    font-size: 15px;
-    font-weight: 600;
-    padding: 12px 28px;
-    border-radius: 8px;
-    border: none;
-    cursor: pointer;
-    text-decoration: none;
-    transition: background 0.15s ease;
-    min-height: 44px;
-  }
-  .btn-primary:hover { background: var(--sky-dark); }
-  .btn-primary:focus-visible { outline: 2px solid var(--sky); outline-offset: 2px; }
-  .btn-secondary {
-    display: inline-flex;
-    align-items: center;
-    background: var(--white);
-    color: var(--text);
-    font-family: inherit;
-    font-size: 15px;
-    font-weight: 500;
-    padding: 12px 28px;
-    border-radius: 8px;
-    border: 1px solid var(--border);
-    cursor: pointer;
-    text-decoration: none;
-    transition: background 0.15s ease;
-    min-height: 44px;
-  }
-  .btn-secondary:hover { background: var(--near-white); }
-  .btn-secondary:focus-visible { outline: 2px solid var(--sky); outline-offset: 2px; }
 
-  /* Stats bar */
-  .stats {
-    display: flex;
-    justify-content: center;
-    gap: 48px;
-    flex-wrap: wrap;
-    padding: 32px 0;
-    border-top: 1px solid var(--border);
-    border-bottom: 1px solid var(--border);
-    margin-bottom: 80px;
-  }
-  .stat {
-    text-align: center;
-  }
-  .stat-value {
-    font-size: 28px;
+  h1 {
+    font-size: 36px;
     font-weight: 700;
-    color: var(--text);
     letter-spacing: -0.01em;
     line-height: 1.2;
-  }
-  .stat-label {
-    font-size: 13px;
-    color: var(--secondary-text);
-    margin-top: 4px;
-  }
-
-  /* Feature cards */
-  .section-label {
-    font-size: 12px;
-    font-weight: 500;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: var(--secondary-text);
-    margin-bottom: 16px;
-  }
-  .section-heading {
-    font-size: 28px;
-    font-weight: 600;
-    letter-spacing: -0.01em;
-    color: var(--text);
     margin-bottom: 8px;
   }
-  .section-sub {
-    font-size: 16px;
-    color: var(--secondary-text);
-    margin-bottom: 40px;
-  }
-  .features {
-    margin-bottom: 80px;
-  }
-  .feature-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 20px;
-  }
-  .feature-card {
-    background: var(--white);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 24px;
-    box-shadow: var(--shadow-lifted);
-    transition: box-shadow 0.15s ease;
-  }
-  .feature-card:hover {
-    box-shadow: var(--shadow-raised);
-  }
-  .feature-icon {
-    width: 40px;
-    height: 40px;
-    border-radius: 10px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 20px;
-    margin-bottom: 16px;
-  }
-  .icon-blue  { background: var(--sky-tint); }
-  .icon-yellow { background: var(--yellow-tint); }
-  .icon-orange { background: var(--orange-tint); }
-  .icon-coral  { background: var(--coral-tint); }
-  .feature-card h3 {
-    font-size: 16px;
-    font-weight: 600;
-    color: var(--text);
-    margin-bottom: 6px;
-  }
-  .feature-card p {
-    font-size: 14px;
-    color: var(--secondary-text);
-    line-height: 1.5;
-  }
-  .feature-badge {
-    display: inline-block;
-    margin-top: 14px;
-    font-size: 12px;
-    font-weight: 500;
-    padding: 2px 10px;
-    border-radius: 999px;
-    background: var(--light-gray);
-    color: var(--label-text);
-  }
-  .badge-blue   { background: var(--sky-tint); }
-  .badge-yellow { background: var(--yellow-tint); }
-  .badge-orange { background: var(--orange-tint); }
-  .badge-coral  { background: var(--coral-tint); }
 
-  /* CTA section */
-  .cta-section {
-    background: var(--near-white);
-    border: 1px solid var(--border);
-    border-radius: 16px;
-    padding: 56px 40px;
-    text-align: center;
-    margin-bottom: 80px;
-  }
-  .cta-section h2 {
-    font-size: 28px;
-    font-weight: 700;
-    letter-spacing: -0.01em;
-    color: var(--text);
-    margin-bottom: 12px;
-  }
-  .cta-section p {
+  p {
     font-size: 16px;
     color: var(--secondary-text);
     margin-bottom: 32px;
   }
 
-  /* Footer */
-  footer {
-    border-top: 1px solid var(--border);
-    padding: 28px 0;
-    text-align: center;
-  }
-  footer p {
-    font-size: 13px;
-    color: var(--muted-text);
+  a {
+    display: inline-flex;
+    align-items: center;
+    background: var(--sky);
+    color: var(--text);
+    font-family: inherit;
+    font-size: 15px;
+    font-weight: 500;
+    padding: 10px 20px;
+    border-radius: 8px;
+    text-decoration: none;
+    transition: background 0.15s ease;
   }
 
-  @media (max-width: 640px) {
-    .hero { padding: 56px 0 48px; }
-    .stats { gap: 28px; }
-    .cta-section { padding: 40px 24px; }
-    .feature-grid { grid-template-columns: 1fr; }
-  }
+  a:hover { background: var(--sky-dark); }
+  a:focus-visible { outline: 2px solid var(--sky); outline-offset: 2px; }
 </style>
 </head>
 <body>
-
-<nav>
-  <div class="nav-inner">
-    <a class="nav-brand" href="#">Svenska <span>D3</span></a>
-    <a class="nav-cta" href="basic.html">Open Study Guide →</a>
-  </div>
-</nav>
-
-<main class="page">
-
-  <section class="hero">
-    <span class="kicker">Swedish Language Learning</span>
-    <h1>Your personal<br><em>Svenska D3</em> study guide</h1>
-    <p>Verb tables, flashcards, vocabulary, fill-in-the-blank dialogues, and quizzes — all in one place.</p>
-    <div class="hero-actions">
-      <a class="btn-primary" href="basic.html">Start studying →</a>
-      <a class="btn-secondary" href="basic.html#flashcards">Browse flashcards</a>
-    </div>
-  </section>
-
-  <div class="stats">
-    <div class="stat">
-      <div class="stat-value">45+</div>
-      <div class="stat-label">Verbs with conjugations</div>
-    </div>
-    <div class="stat">
-      <div class="stat-value">200+</div>
-      <div class="stat-label">Flashcards across 19 decks</div>
-    </div>
-    <div class="stat">
-      <div class="stat-value">250+</div>
-      <div class="stat-label">Vocabulary pairs</div>
-    </div>
-    <div class="stat">
-      <div class="stat-value">3</div>
-      <div class="stat-label">Quiz modes</div>
-    </div>
-  </div>
-
-  <section class="features">
-    <p class="section-label">What's inside</p>
-    <h2 class="section-heading">Everything you need for D3</h2>
-    <p class="section-sub">Five tools built into a single page — no account required.</p>
-
-    <div class="feature-grid">
-
-      <div class="feature-card">
-        <div class="feature-icon icon-blue">📋</div>
-        <h3>Verb Tables</h3>
-        <p>Modal verbs and 45+ regular verbs with infinitive, present, and past forms side by side. Filter by daily routine or library context.</p>
-        <span class="feature-badge badge-blue">Verbs</span>
-      </div>
-
-      <div class="feature-card">
-        <div class="feature-icon icon-yellow">🃏</div>
-        <h3>Flashcards</h3>
-        <p>19 decks covering verbs, greetings, food, shopping, transport, home, time, family, health, Easter, numbers, and more.</p>
-        <span class="feature-badge badge-yellow">19 decks</span>
-      </div>
-
-      <div class="feature-card">
-        <div class="feature-icon icon-orange">📖</div>
-        <h3>Vocabulary Reference</h3>
-        <p>13 organized sections of Swedish ↔ English word pairs grouped by real-world context, including ordinal numbers and date formulations.</p>
-        <span class="feature-badge badge-orange">250+ words</span>
-      </div>
-
-      <div class="feature-card">
-        <div class="feature-icon icon-coral">✍️</div>
-        <h3>Fill-in-the-blank</h3>
-        <p>Interactive dialogue practice from Avsnitt 3 and 4 — type your answers and get instant color-coded feedback.</p>
-        <span class="feature-badge badge-coral">Lucktext</span>
-      </div>
-
-      <div class="feature-card">
-        <div class="feature-icon icon-blue">🎯</div>
-        <h3>Quiz Mode</h3>
-        <p>Test yourself on verb conjugations or vocabulary with three modes: Inf→Då, Inf→Nu, and English→Svenska.</p>
-        <span class="feature-badge badge-blue">3 modes</span>
-      </div>
-
-    </div>
-  </section>
-
-  <section class="cta-section">
-    <h2>Redo att börja?</h2>
-    <p>The full study guide is one click away — no setup needed.</p>
-    <a class="btn-primary" href="basic.html">Open the Study Guide →</a>
-  </section>
-
-</main>
-
-<footer>
-  <div class="page">
-    <p>Svenska D3 &mdash; Personal study notes</p>
-  </div>
-</footer>
-
+  <h1>Hej! 👋</h1>
+  <p>Swedish notes and flashcards for D3.</p>
+  <a href="basic.html">Open study guide →</a>
 </body>
 </html>
