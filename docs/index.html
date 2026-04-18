@@ -55,6 +55,8 @@
     margin-bottom: 32px;
   }
 
+  .links { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; }
+
   a {
     display: inline-flex;
     align-items: center;
@@ -71,11 +73,21 @@
 
   a:hover { background: var(--sky-dark); }
   a:focus-visible { outline: 2px solid var(--sky); outline-offset: 2px; }
+
+  a.secondary {
+    background: var(--white);
+    border: 1px solid var(--border);
+    color: var(--text);
+  }
+  a.secondary:hover { background: var(--near-white); }
 </style>
 </head>
 <body>
   <h1>Hej! 👋</h1>
   <p>Swedish notes and flashcards for D3.</p>
-  <a href="basic.html">Open study guide →</a>
+  <div class="links">
+    <a href="basic.html">Study guide →</a>
+    <a href="practice.html" class="secondary">Practice</a>
+  </div>
 </body>
 </html>

@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Svenska D3 — Practice</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --white:#FFFFFF;--near-white:#F9FAFB;--light-gray:#F3F4F6;
+    --border:#E5E7EB;--muted-text:#9CA3AF;--secondary-text:#6B7280;
+    --label-text:#374151;--text:#111827;
+    --sky:#8CE4FF;--sky-tint:#E8F9FF;--sky-dark:#6EDAF7;
+    --coral:#FF5656;--coral-tint:#FFE8E8;
+    --success:#16A34A;--success-tint:#DCFCE7;
+    --shadow-lifted:0 1px 3px rgba(0,0,0,0.06),0 1px 2px rgba(0,0,0,0.04);
+    --shadow-raised:0 4px 12px rgba(0,0,0,0.08),0 2px 4px rgba(0,0,0,0.05);
+  }
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  html,body{
+    background:var(--white);color:var(--text);
+    font-family:"Inter",system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+    font-size:16px;line-height:1.6;-webkit-font-smoothing:antialiased;
+  }
+
+  /* NAV */
+  nav{position:sticky;top:0;background:var(--white);border-bottom:1px solid var(--border);z-index:10}
+  .nav-inner{
+    max-width:800px;margin:0 auto;padding:0 24px;
+    height:56px;display:flex;align-items:center;justify-content:space-between;
+  }
+  .nav-links{display:flex;gap:20px;align-items:center}
+  .nav-links a{font-size:14px;font-weight:500;color:var(--secondary-text);text-decoration:none;transition:color .15s}
+  .nav-links a:hover{color:var(--text)}
+  .score-pill{
+    font-size:13px;font-weight:600;color:var(--text);
+    background:var(--sky-tint);border:1px solid var(--sky);
+    border-radius:999px;padding:4px 14px;
+    display:flex;gap:4px;align-items:center;
+  }
+  .score-pill .sep{color:var(--muted-text);font-weight:400}
+
+  /* PAGE */
+  main{max-width:800px;margin:0 auto;padding:32px 24px 96px}
+  .page-header{margin-bottom:28px}
+  .kicker{font-size:12px;font-weight:500;letter-spacing:0.08em;text-transform:uppercase;color:var(--secondary-text);margin-bottom:8px}
+  h1{font-size:36px;font-weight:700;letter-spacing:-0.01em;color:var(--text)}
+
+  /* MODE TABS */
+  .mode-tabs{
+    display:flex;gap:4px;margin-bottom:8px;
+    background:var(--near-white);padding:4px;border-radius:12px;
+    border:1px solid var(--border);width:fit-content;
+  }
+  .mode-tab{
+    background:transparent;border:0;padding:10px 20px;border-radius:8px;
+    font-family:inherit;font-size:14px;font-weight:500;color:var(--secondary-text);
+    cursor:pointer;transition:all .15s;white-space:nowrap;
+  }
+  .mode-tab.active{background:var(--white);color:var(--text);font-weight:600;box-shadow:var(--shadow-lifted)}
+  .mode-tab:hover:not(.active){color:var(--text)}
+  .mode-tab:focus-visible{outline:2px solid var(--sky);outline-offset:2px}
+
+  /* COUNTER */
+  .sentence-counter{font-size:13px;color:var(--muted-text);margin-bottom:20px}
+
+  /* CARD */
+  .exercise-card{
+    background:var(--white);border:1px solid var(--border);
+    border-radius:16px;padding:32px;box-shadow:var(--shadow-lifted);
+  }
+
+  /* PROMPT */
+  .prompt-label{font-size:12px;font-weight:500;letter-spacing:0.06em;text-transform:uppercase;color:var(--secondary-text);margin-bottom:10px}
+  .prompt-text{font-size:20px;font-weight:600;color:var(--text);line-height:1.4;margin-bottom:24px}
+  .listen-row{margin-bottom:24px}
+  .listen-btn{
+    display:inline-flex;align-items:center;gap:8px;
+    background:var(--sky);border:none;border-radius:8px;
+    padding:12px 20px;font-family:inherit;font-size:15px;font-weight:600;color:var(--text);
+    cursor:pointer;transition:background .15s;min-height:44px;
+  }
+  .listen-btn:hover{background:var(--sky-dark)}
+  .listen-btn:focus-visible{outline:2px solid var(--sky);outline-offset:2px}
+  .listen-hint{display:block;font-size:13px;color:var(--secondary-text);margin-top:8px}
+
+  /* ZONES */
+  .zone-label{font-size:12px;font-weight:500;color:var(--secondary-text);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:8px}
+  .answer-zone{
+    min-height:72px;border:2px dashed var(--border);border-radius:12px;
+    padding:12px;display:flex;flex-wrap:wrap;gap:8px;align-items:center;
+    margin-bottom:20px;background:var(--near-white);
+    transition:border-color .15s,background .15s;
+  }
+  .answer-zone.drag-over{border-color:var(--sky);background:var(--sky-tint)}
+  .answer-zone.state-correct{border-color:var(--success);background:var(--success-tint);border-style:solid}
+  .answer-zone.state-wrong{border-color:var(--coral);background:var(--coral-tint);border-style:solid}
+  .zone-placeholder{color:var(--muted-text);font-size:14px;pointer-events:none;user-select:none}
+  .word-bank{
+    display:flex;flex-wrap:wrap;gap:8px;padding:12px;min-height:52px;
+    margin-bottom:24px;border:1px solid var(--border);border-radius:12px;
+    background:var(--white);transition:background .15s;
+  }
+  .word-bank.drag-over{background:var(--near-white)}
+
+  /* TILES */
+  .tile{
+    display:inline-flex;align-items:center;
+    background:var(--white);border:1.5px solid var(--border);border-radius:8px;
+    padding:8px 16px;font-family:inherit;font-size:15px;font-weight:500;color:var(--text);
+    cursor:pointer;user-select:none;touch-action:manipulation;
+    min-height:44px;white-space:nowrap;box-shadow:var(--shadow-lifted);
+    transition:background .1s,border-color .1s,transform .1s,opacity .15s;
+  }
+  .tile:hover{background:var(--sky-tint);border-color:var(--sky)}
+  .tile:active{transform:scale(0.96)}
+  .tile.dragging{opacity:0.35}
+  .tile.correct-tile{background:var(--success-tint);border-color:var(--success);color:var(--success);pointer-events:none}
+  .tile.wrong-tile{background:var(--coral-tint);border-color:var(--coral);color:var(--coral);pointer-events:none}
+  .tile:disabled{pointer-events:none;opacity:0.6}
+
+  /* ACTIONS */
+  .exercise-actions{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:20px}
+  .btn-primary{
+    display:inline-flex;align-items:center;gap:6px;
+    background:var(--sky);color:var(--text);border:none;border-radius:8px;
+    padding:10px 24px;font-family:inherit;font-size:14px;font-weight:600;
+    cursor:pointer;min-height:44px;transition:background .15s;
+  }
+  .btn-primary:hover{background:var(--sky-dark)}
+  .btn-primary:focus-visible{outline:2px solid var(--sky);outline-offset:2px}
+  .btn-secondary{
+    display:inline-flex;align-items:center;background:var(--white);color:var(--text);
+    border:1px solid var(--border);border-radius:8px;
+    padding:10px 20px;font-family:inherit;font-size:14px;font-weight:500;
+    cursor:pointer;min-height:44px;transition:background .15s;
+  }
+  .btn-secondary:hover{background:var(--near-white)}
+  .btn-secondary:focus-visible{outline:2px solid var(--sky);outline-offset:2px}
+  .hidden{display:none!important}
+
+  /* FEEDBACK */
+  .feedback{border-radius:10px;padding:14px 18px;font-size:15px;font-weight:500;line-height:1.5}
+  .feedback.correct{background:var(--success-tint);color:var(--success);border:1px solid var(--success)}
+  .feedback.wrong{background:var(--coral-tint);color:var(--coral);border:1px solid var(--coral)}
+  .feedback .correct-answer{display:block;margin-top:6px;font-size:14px;color:var(--text);font-weight:400}
+
+  @media(max-width:640px){
+    .exercise-card{padding:20px 16px}
+    h1{font-size:28px}
+    .prompt-text{font-size:18px}
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-inner">
+    <div class="nav-links">
+      <a href="index.html">← Home</a>
+      <a href="basic.html">Study Guide</a>
+    </div>
+    <div class="score-pill">
+      <span id="score-correct">0</span>
+      <span class="sep">/</span>
+      <span id="score-total">0</span>
+    </div>
+  </div>
+</nav>
+
+<main>
+  <div class="page-header">
+    <div class="kicker">Interactive practice</div>
+    <h1>Practice</h1>
+  </div>
+
+  <div class="mode-tabs" role="tablist">
+    <button class="mode-tab active" data-mode="scramble" role="tab" aria-selected="true">Word Order</button>
+    <button class="mode-tab" data-mode="listen" role="tab" aria-selected="false">Listen &amp; Arrange</button>
+  </div>
+  <div class="sentence-counter" id="sentence-counter"></div>
+
+  <div class="exercise-card">
+    <div id="prompt-area"></div>
+
+    <div class="zone-label">Your answer</div>
+    <div class="answer-zone" id="answer-zone"></div>
+
+    <div class="zone-label">Word bank</div>
+    <div class="word-bank" id="word-bank"></div>
+
+    <div class="exercise-actions">
+      <button class="btn-primary" id="btn-check" type="button">Check</button>
+      <button class="btn-secondary" id="btn-clear" type="button">Clear</button>
+      <button class="btn-primary hidden" id="btn-next" type="button">Next →</button>
+    </div>
+
+    <div class="feedback hidden" id="feedback"></div>
+  </div>
+</main>
+
+<script>
+/* =========================================================
+   DATA
+   ========================================================= */
+const SENTENCES = [
+  {sv:"Vi gick till skolan idag.",             en:"We went to school today."},
+  {sv:"Jag studerade svenska varje lördag.",   en:"I studied Swedish every Saturday."},
+  {sv:"Du åt en apelsin.",                     en:"You ate an orange."},
+  {sv:"Du kan besöka din familj.",             en:"You can visit your family."},
+  {sv:"Jag läste en bok på biblioteket.",      en:"I read a book at the library."},
+  {sv:"Jag målar för att slappna av.",         en:"I paint to relax."},
+  {sv:"Jag sitter i åtta timmar på jobbet.",   en:"I sit for eight hours at work."},
+  {sv:"Jag sjunger opera.",                    en:"I sing opera."},
+  {sv:"Jag sjöng på teatern.",                 en:"I sang at the theater."},
+  {sv:"Jag lånade en penna till min vän.",     en:"I lent a pen to my friend."},
+  {sv:"Jag kopierade läxan.",                  en:"I copied the homework."},
+  {sv:"Jag använde min väns dator.",           en:"I used my friend's computer."},
+  {sv:"Jag hade ett husdjur som hette Canuto.",en:"I had a pet named Canuto."},
+  {sv:"Hur mår du?",                           en:"How are you?"},
+  {sv:"Jag mår bra tack.",                     en:"I am doing well thanks."},
+  {sv:"Trevligt att träffas.",                 en:"Nice to meet you."},
+  {sv:"Talar du engelska?",                    en:"Do you speak English?"},
+  {sv:"Jag vaknar tidigt på morgonen.",        en:"I wake up early in the morning."},
+  {sv:"Han dricker kaffe varje dag.",          en:"He drinks coffee every day."},
+  {sv:"Vi handlar mat på fredagar.",           en:"We shop for food on Fridays."},
+  {sv:"Hon borstar tänderna.",                 en:"She brushes her teeth."},
+  {sv:"Hur kommer jag till stationen?",        en:"How do I get to the station?"},
+  {sv:"Bussen går klockan nio.",               en:"The bus leaves at nine o'clock."},
+  {sv:"Vad kostar det?",                       en:"How much does it cost?"},
+  {sv:"Jag tar den här.",                      en:"I will take this one."},
+  {sv:"Jag vill låna en bok.",                 en:"I want to borrow a book."},
+  {sv:"Du måste ha ett bibliotekskort.",       en:"You must have a library card."},
+  {sv:"Kan jag skriva ut här?",               en:"Can I print here?"},
+  {sv:"Jag bor på tredje våningen.",           en:"I live on the third floor."},
+  {sv:"Är tvättmaskinen ledig?",              en:"Is the washing machine free?"},
+  {sv:"Sluta skriva lappar på dörren.",        en:"Stop writing notes on the door."},
+  {sv:"Det är typiskt.",                       en:"That is typical."},
+  {sv:"Idag är det måndag.",                  en:"Today is Monday."},
+  {sv:"Vi ses imorgon.",                       en:"See you tomorrow."},
+];
+
+/* =========================================================
+   STATE
+   ========================================================= */
+let mode = "scramble";
+let queue = [];
+let qIdx = 0;
+let answered = false;
+let score = {correct: 0, total: 0};
+let dragSrc = null;
+
+const answerZone = document.getElementById("answer-zone");
+const wordBank   = document.getElementById("word-bank");
+
+/* =========================================================
+   HELPERS
+   ========================================================= */
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function splitWords(s) { return s.split(/\s+/).filter(Boolean); }
+function normalize(s)  { return s.toLowerCase().replace(/[.,!?]/g, "").trim(); }
+
+function buildQueue() {
+  queue = shuffle(SENTENCES.map((_, i) => i));
+  qIdx = 0;
+}
+
+function currentSentence() { return SENTENCES[queue[qIdx]]; }
+
+/* =========================================================
+   SCORE + COUNTER
+   ========================================================= */
+function updateScore() {
+  document.getElementById("score-correct").textContent = score.correct;
+  document.getElementById("score-total").textContent   = score.total;
+  document.getElementById("sentence-counter").textContent =
+    `Sentence ${qIdx + 1} of ${SENTENCES.length}`;
+}
+
+/* =========================================================
+   TTS
+   ========================================================= */
+function speak(text) {
+  if (!window.speechSynthesis) return;
+  speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(text);
+  u.lang = "sv-SE";
+  u.rate = 0.9;
+  speechSynthesis.speak(u);
+}
+
+/* =========================================================
+   PLACEHOLDER
+   ========================================================= */
+function updatePlaceholder() {
+  const existing = answerZone.querySelector(".zone-placeholder");
+  const hasTiles  = answerZone.querySelector(".tile");
+  if (hasTiles && existing)  { existing.remove(); return; }
+  if (!hasTiles && !existing) {
+    const p = document.createElement("span");
+    p.className = "zone-placeholder";
+    p.textContent = "Click words below to place them here";
+    answerZone.appendChild(p);
+  }
+}
+
+/* =========================================================
+   TILES
+   ========================================================= */
+function createTile(word) {
+  const t = document.createElement("button");
+  t.className   = "tile";
+  t.textContent = word;
+  t.type        = "button";
+  t.draggable   = true;
+  t.dataset.word = word;
+  t.dataset.zone = "bank";
+
+  t.addEventListener("click", () => { if (!answered) handleTileClick(t); });
+
+  t.addEventListener("dragstart", e => {
+    dragSrc = t;
+    e.dataTransfer.effectAllowed = "move";
+    setTimeout(() => t.classList.add("dragging"), 0);
+  });
+  t.addEventListener("dragend", () => {
+    t.classList.remove("dragging");
+    dragSrc = null;
+    updatePlaceholder();
+  });
+
+  return t;
+}
+
+function handleTileClick(tile) {
+  if (tile.dataset.zone === "bank") {
+    tile.dataset.zone = "answer";
+    answerZone.appendChild(tile);
+  } else {
+    tile.dataset.zone = "bank";
+    wordBank.appendChild(tile);
+  }
+  updatePlaceholder();
+}
+
+/* =========================================================
+   DRAG AND DROP
+   ========================================================= */
+function getDragAfterElement(container, x) {
+  const tiles = [...container.querySelectorAll(".tile:not(.dragging)")];
+  return tiles.reduce((closest, child) => {
+    const box    = child.getBoundingClientRect();
+    const offset = x - box.left - box.width / 2;
+    if (offset < 0 && offset > closest.offset) return {offset, element: child};
+    return closest;
+  }, {offset: Number.NEGATIVE_INFINITY}).element;
+}
+
+answerZone.addEventListener("dragover", e => {
+  e.preventDefault();
+  if (!dragSrc) return;
+  answerZone.classList.add("drag-over");
+  const after = getDragAfterElement(answerZone, e.clientX);
+  after == null
+    ? answerZone.appendChild(dragSrc)
+    : answerZone.insertBefore(dragSrc, after);
+  dragSrc.dataset.zone = "answer";
+  updatePlaceholder();
+});
+answerZone.addEventListener("dragleave", () => answerZone.classList.remove("drag-over"));
+answerZone.addEventListener("drop",      e => { e.preventDefault(); answerZone.classList.remove("drag-over"); });
+
+wordBank.addEventListener("dragover", e => {
+  e.preventDefault();
+  if (dragSrc && dragSrc.dataset.zone !== "bank") {
+    wordBank.classList.add("drag-over");
+    wordBank.appendChild(dragSrc);
+    dragSrc.dataset.zone = "bank";
+    updatePlaceholder();
+  }
+});
+wordBank.addEventListener("dragleave", () => wordBank.classList.remove("drag-over"));
+wordBank.addEventListener("drop",      e => { e.preventDefault(); wordBank.classList.remove("drag-over"); });
+
+/* =========================================================
+   RENDER
+   ========================================================= */
+function renderExercise() {
+  answered = false;
+  const s      = currentSentence();
+  const words  = splitWords(s.sv);
+  let shuffled = shuffle(words);
+  while (words.length > 1 && shuffled.join(" ") === words.join(" ")) shuffled = shuffle(words);
+
+  // Prompt
+  const promptArea = document.getElementById("prompt-area");
+  if (mode === "scramble") {
+    promptArea.innerHTML = `
+      <div class="prompt-label">Arrange in Swedish</div>
+      <div class="prompt-text">${s.en}</div>`;
+  } else {
+    promptArea.innerHTML = `
+      <div class="prompt-label">Listen and arrange the words</div>
+      <div class="listen-row">
+        <button class="listen-btn" id="listen-btn" type="button" aria-label="Play Swedish sentence">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+          Play
+        </button>
+        <span class="listen-hint">Tap Play, then arrange the words you hear</span>
+      </div>`;
+    document.getElementById("listen-btn").addEventListener("click", () => speak(s.sv));
+  }
+
+  // Clear zones
+  answerZone.innerHTML = "";
+  answerZone.className = "answer-zone";
+  wordBank.innerHTML   = "";
+  updatePlaceholder();
+
+  // Tiles
+  shuffled.forEach(word => wordBank.appendChild(createTile(word)));
+
+  // Feedback + buttons
+  const fb = document.getElementById("feedback");
+  fb.className = "feedback hidden";
+  fb.innerHTML = "";
+  document.getElementById("btn-check").classList.remove("hidden");
+  document.getElementById("btn-next").classList.add("hidden");
+
+  updateScore();
+}
+
+/* =========================================================
+   CHECK
+   ========================================================= */
+document.getElementById("btn-check").addEventListener("click", () => {
+  if (answered) return;
+
+  const arranged = [...answerZone.querySelectorAll(".tile")].map(t => t.textContent);
+  if (arranged.length === 0) {
+    const fb = document.getElementById("feedback");
+    fb.className = "feedback wrong";
+    fb.textContent = "Place at least one word first.";
+    return;
+  }
+
+  answered = true;
+  score.total++;
+
+  const s         = currentSentence();
+  const isCorrect = JSON.stringify(arranged.map(normalize)) === JSON.stringify(splitWords(s.sv).map(normalize));
+  if (isCorrect) score.correct++;
+
+  answerZone.querySelectorAll(".tile").forEach(t => t.classList.add(isCorrect ? "correct-tile" : "wrong-tile"));
+  wordBank.querySelectorAll(".tile").forEach(t => { t.disabled = true; });
+  answerZone.classList.add(isCorrect ? "state-correct" : "state-wrong");
+
+  const fb = document.getElementById("feedback");
+  fb.className = `feedback ${isCorrect ? "correct" : "wrong"}`;
+  fb.innerHTML  = isCorrect
+    ? "✓ Correct!"
+    : `✗ Not quite.<span class="correct-answer">Correct order: <strong>${s.sv}</strong></span>`;
+
+  document.getElementById("btn-check").classList.add("hidden");
+  document.getElementById("btn-next").classList.remove("hidden");
+  updateScore();
+});
+
+/* =========================================================
+   CLEAR
+   ========================================================= */
+document.getElementById("btn-clear").addEventListener("click", () => {
+  if (answered) return;
+  answerZone.querySelectorAll(".tile").forEach(t => {
+    t.dataset.zone = "bank";
+    wordBank.appendChild(t);
+  });
+  updatePlaceholder();
+});
+
+/* =========================================================
+   NEXT
+   ========================================================= */
+document.getElementById("btn-next").addEventListener("click", () => {
+  qIdx++;
+  if (qIdx >= SENTENCES.length) buildQueue();
+  renderExercise();
+});
+
+/* =========================================================
+   MODE SWITCH
+   ========================================================= */
+document.querySelectorAll(".mode-tab").forEach(btn => {
+  btn.addEventListener("click", () => {
+    document.querySelectorAll(".mode-tab").forEach(b => {
+      b.classList.remove("active");
+      b.setAttribute("aria-selected", "false");
+    });
+    btn.classList.add("active");
+    btn.setAttribute("aria-selected", "true");
+    mode = btn.dataset.mode;
+    buildQueue();
+    renderExercise();
+  });
+});
+
+/* =========================================================
+   INIT
+   ========================================================= */
+buildQueue();
+renderExercise();
+</script>
+</body>
+</html>
